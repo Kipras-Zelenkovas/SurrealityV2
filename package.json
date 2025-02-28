@@ -1,5 +1,21 @@
 {
-  "dependencies": {
-    "surrealdb": "^1.1.0"
-  }
+    "name": "Surreality",
+    "version": "0.0.1",
+    "author": "Prorox",
+    "license": "Apache-2.0",
+    "type": "module",
+    "scripts": {
+        "test": "node ./Test/manager.test.js"
+    },
+    "jest": {
+        "transform": {}
+    },
+    "dependencies": {
+        "surrealdb": "^1.1.0"
+    },
+    "devDependencies": {
+        "jest": "^29.7.0",
+        "jsdoc": "^4.0.4",
+        "typescript": "^5.7.3"
+    }
 }
