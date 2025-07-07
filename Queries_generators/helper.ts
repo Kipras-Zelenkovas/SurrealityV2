@@ -1,58 +1,56 @@
 // Helper functions for SurrealDB query clause generation
 
-import { IncludeOption } from '../Interfaces/IncludeOption';
+import { RecursiveIncludeOption } from '../Interfaces/IncludeOption';
 
 /**
- * Flattens Sequelize-style include options into SurrealDB FETCH clause paths.
+ * Flattens recursive, type-safe include options into SurrealDB FETCH clause paths.
+ * @template T - The table schema interface.
+ * @param {Array<RecursiveIncludeOption<T>>} include - Type-safe include tree.
+ * @param {string} [parentPath] - Used for recursion.
+ * @returns {string[]} - Array of SurrealDB FETCH paths.
  */
-export function flattenIncludes(
-    include: string | string[] | IncludeOption | IncludeOption[],
+export function flattenIncludes<T>(
+    include: Array<RecursiveIncludeOption<T>>,
     parentPath = ''
 ): string[] {
-    if (typeof include === 'string') {
-        return [parentPath ? `${parentPath}.${include}` : include];
-    }
-    if (Array.isArray(include)) {
-        return include.flatMap((inc) => flattenIncludes(inc, parentPath));
-    }
-    // IncludeOption object
-    const path = parentPath ? `${parentPath}.${include.as || include.model}` : (include.as || include.model);
-    let paths = [path];
-    if (include.include) {
-        paths = [
-            path,
-            ...flattenIncludes(include.include, path)
-        ];
-    }
-    return paths;
+    return include.flatMap((inc) => {
+        const path = parentPath ? `${parentPath}.${(inc as any).as || inc.model}` : ((inc as any).as || inc.model);
+        let paths = [path];
+        if (inc.include && Array.isArray(inc.include)) {
+            paths = [
+                path,
+                ...flattenIncludes(inc.include as any, path)
+            ];
+        }
+        return paths;
+    });
 }
 
 /**
- * Collects all fields for SELECT clause from includes.
+ * Collects all fields for SELECT clause from recursive, type-safe includes.
+ * @template T - The table schema interface.
+ * @param {Array<RecursiveIncludeOption<T>>} include - Type-safe include tree.
+ * @param {string} [parentPath] - Used for recursion.
+ * @returns {string[]} - Array of field paths for SELECT clause.
  */
-export function collectIncludeFields(
-    include: string | string[] | IncludeOption | IncludeOption[],
+export function collectIncludeFields<T>(
+    include: Array<RecursiveIncludeOption<T>>,
     parentPath = ''
 ): string[] {
-    if (typeof include === 'string') {
-        return [];
-    }
-    if (Array.isArray(include)) {
-        return include.flatMap((inc) => collectIncludeFields(inc, parentPath));
-    }
-    // IncludeOption object
-    const path = parentPath ? `${parentPath}.${include.as || include.model}` : (include.as || include.model);
-    let fields: string[] = [];
-    if (include.fields && include.fields.length > 0) {
-        fields = include.fields.map(f => `${path}.${f}`);
-    }
-    if (include.include) {
-        fields = [
-            ...fields,
-            ...collectIncludeFields(include.include, path)
-        ];
-    }
-    return fields;
+    return include.flatMap((inc) => {
+        const path = parentPath ? `${parentPath}.${(inc as any).as || inc.model}` : ((inc as any).as || inc.model);
+        let fields: string[] = [];
+        if (inc.fields && inc.fields.length > 0) {
+            fields = (inc.fields as string[]).map(f => `${path}.${f}`);
+        }
+        if (inc.include && Array.isArray(inc.include)) {
+            fields = [
+                ...fields,
+                ...collectIncludeFields(inc.include as any, path)
+            ];
+        }
+        return fields;
+    });
 }
 
 /**
@@ -103,10 +101,13 @@ export function generateLimitOffsetClause(limit?: number, offset?: number): stri
 }
 
 /**
- * Generates a SurrealDB FETCH clause from includes.
+ * Generates a SurrealDB FETCH clause from recursive, type-safe includes.
+ * @template T - The table schema interface.
+ * @param {Array<RecursiveIncludeOption<T>>} [include] - Type-safe include tree.
+ * @returns {string} - SurrealDB FETCH clause.
  */
-export function generateFetchClause(include?: string | string[] | IncludeOption | IncludeOption[]): string {
-    if (!include) return '';
+export function generateFetchClause<T>(include?: Array<RecursiveIncludeOption<T>>): string {
+    if (!include || include.length === 0) return '';
     const fetchPaths = flattenIncludes(include);
     return fetchPaths.length > 0 ? `FETCH ${fetchPaths.join(', ')}` : '';
 } 
