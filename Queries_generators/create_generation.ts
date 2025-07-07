@@ -6,7 +6,7 @@ import { CreateOptionsI } from '../Interfaces/CreateOptionsI';
  * @param {CreateOptionsI} options - Options for the create operation.
  * @returns {string} - The generated SurrealDB CREATE query string.
  */
-export function generateCreateQuery(table: string, options: CreateOptionsI): string {
+export function generateCreateQuery<T extends object>(table: string, options: CreateOptionsI<T>): string {
     if (options.surrealql) {
         return options.surrealql.trim();
     }

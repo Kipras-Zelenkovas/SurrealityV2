@@ -1,11 +1,11 @@
 /**
  * Options for creating a record in SurrealDB.
  */
-export interface CreateOptionsI {
+export interface CreateOptionsI<T extends object = object> {
     /**
      * The data to insert. Can be an object (single record) or array (multiple records).
      */
-    data: object | object[];
+    data: T | T[];
     /**
      * Optional explicit record ID (e.g., 'user:john').
      */
