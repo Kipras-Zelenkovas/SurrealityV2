@@ -19,23 +19,44 @@ import { generateCreateQuery } from './Queries_generators/create_generation';
  *
  * @template TTableSchema - The TypeScript interface representing the schema of the current table.
  *
- * By providing a schema interface as the generic parameter, all data operations (e.g., create) will be type-safe and autocompleted for the fields of that table.
+ * By providing a schema interface as the generic parameter, all data operations (e.g., create, findAll, findOne) will be type-safe and autocompleted for the fields of that table, including recursive, type-safe includes for related models.
  *
  * @example
- * // Define a schema for the user table
- * interface UserTable {
- *   name: string;
- *   age: number;
- *   email?: string;
+ * // Example of nested interfaces for a relational schema
+ * interface Brand {
+ *   id: string;         // scalar field
+ *   name: string;       // scalar field
+ * }
+ *
+ * interface Car {
+ *   id: string;         // scalar field
+ *   brand: Brand;       // relation to Brand (object field)
+ * }
+ *
+ * interface User {
+ *   id: string;         // scalar field
+ *   name: string;       // scalar field
+ *   surname: string;    // scalar field
+ *   cars: Car[];        // relation to Car[] (array of objects)
  * }
  *
  * // Create an ORM instance for the user table
- * const userOrm = new Surreality<UserTable>(...);
+ * const userOrm = new Surreality<User>(...);
  *
- * // Type-safe create with autocomplete for UserTable fields
- * await userOrm.create({ data: { name: 'Alice', age: 30 } });
- * // TypeScript will error if you use a field not in UserTable
- * // await userOrm.create({ data: { notAField: 123 } }); // Error
+ * // Type-safe, recursive includes and fields
+ * await userOrm.findAll({
+ *   include: [
+ *     {
+ *       model: 'cars',
+ *       fields: ['id'],
+ *       include: [
+ *         { model: 'brand', fields: ['id', 'name'] }
+ *       ]
+ *     }
+ *   ],
+ *   fields: ['id', 'name', 'surname', 'cars']
+ * });
+ * // TypeScript will error if you use a field or include not in the interface
  */
 export class Surreality<TTableSchema extends object = object> {
     private surreal: Surreal | null = null;
@@ -188,38 +209,51 @@ export class Surreality<TTableSchema extends object = object> {
 
     /**
      * Performs a SELECT query on the current table, similar to Sequelize's findAll.
-     * Allows flexible querying with fields, filtering, ordering, limits, eager loading (include), and more.
+     * Allows flexible querying with type-safe, recursive includes and fields.
      *
-     * @template TField - Field names (defaults to keyof TTableSchema & string)
-     * @template TModel - Model names (defaults to string)
-     * @param {SelectOptionsI<TField, TModel>} [options] - Query options for selecting records.
+     * @param {SelectOptionsI<TTableSchema>} [options] - Query options for selecting records.
+     *   - fields: Array of field names to select from the main table (autocompleted from the interface).
+     *   - where: Filtering conditions (flexible, not type-checked).
+     *   - order: Field(s) to order by (type-safe).
+     *   - limit: Maximum number of records to return.
+     *   - offset: Number of records to skip.
+     *   - raw: If true, returns raw SurrealDB response.
+     *   - surrealql: Raw SurrealQL clause (overrides other options).
+     *   - include: Array of nested, type-safe includes for related models. Each include allows only valid relation fields, and its own fields/include options are autocompleted from the related interface.
+     *
      * @returns {Promise<any[] | ErrorResponse>} - Array of records or ErrorResponse on failure.
      *
      * @example
-     * // Get all users with their posts (type-safe include)
-     * await userOrm.findAll({ include: 'posts' });
+     * // Get all users with their cars and each car's brand (fully type-safe, recursive includes)
+     * await userOrm.findAll({
+     *   include: [
+     *     {
+     *       model: 'cars',
+     *       fields: ['id'],
+     *       include: [
+     *         { model: 'brand', fields: ['id', 'name'] }
+     *       ]
+     *     }
+     *   ],
+     *   fields: ['id', 'name', 'surname', 'cars']
+     * });
      *
      * @example
-     * // Get users with profile and nested avatar, selecting only id and bio from profile (type-safe fields)
-     * await userOrm.findAll({ include: [{ model: 'profile', fields: ['id', 'bio'], include: [{ model: 'avatar', fields: ['url'] }] }] });
+     * // Get users with only id and name fields
+     * await userOrm.findAll({ fields: ['id', 'name'] });
      *
      * @example
-     * // Get users with posts and comments on posts, filtering posts by published (flexible where)
-     * await userOrm.findAll({ include: [{ model: 'posts', where: { published: true }, include: ['comments'] }] });
-     *
-     * @example
-     * // Type-safe fields and order
-     * await userOrm.findAll({ fields: ['id', 'name'], order: 'age' });
+     * // Get users with cars, but only select car ids
+     * await userOrm.findAll({ include: [{ model: 'cars', fields: ['id'] }] });
      *
      * @note
-     *   - The 'fields' option in includes will select those fields in the main SELECT clause (e.g., 'profile.id').
-     *   - The 'where' option in includes is NOT natively supported by SurrealDB FETCH and will NOT filter included records in the query. You may post-process results in JS if needed.
+     *   - The 'fields' option in includes will select those fields in the main SELECT clause (e.g., 'cars.id').
+     *   - The 'include' option is fully recursive and type-safe: only valid relation fields and their valid fields/includes are allowed at each level.
+     *   - The 'where' option is flexible and not type-checked.
+     *   - All options are autocompleted and type-checked based on your interface structure.
      */
-    public async findAll<
-        TField extends string = keyof TTableSchema & string,
-        TModel extends string = string
-    >(
-        options?: SelectOptionsI<TField, TModel>
+    public async findAll(
+        options?: SelectOptionsI<TTableSchema>
     ): Promise<any[] | ErrorResponse> {
         try {
             if (!this.surreal) throw new Error("Not connected to SurrealDB");
@@ -261,36 +295,45 @@ export class Surreality<TTableSchema extends object = object> {
     }
 
     /**
-     * Finds a single record from the table, supporting fields, where, include, raw, and surrealql options.
+     * Finds a single record from the table, supporting type-safe, recursive includes and fields.
      * Returns the first record found or null if not found.
      *
-     * @template TField - Field names (defaults to keyof TTableSchema & string)
-     * @template TModel - Model names (defaults to string)
-     * @param {SelectOneOptionsI<TField, TModel>} [options] - Query options for selecting a single record.
+     * @param {SelectOneOptionsI<TTableSchema>} [options] - Query options for selecting a single record.
+     *   - fields: Array of field names to select from the main table (autocompleted from the interface).
+     *   - where: Filtering conditions (flexible, not type-checked).
+     *   - raw: If true, returns raw SurrealDB response.
+     *   - surrealql: Raw SurrealQL clause (overrides other options).
+     *   - include: Array of nested, type-safe includes for related models. Each include allows only valid relation fields, and its own fields/include options are autocompleted from the related interface.
+     *
      * @returns {Promise<any | null | ErrorResponse>} - The found record, null if not found, or ErrorResponse on failure.
      *
      * @example
-     * // Find a user by id (type-safe where)
-     * await userOrm.findOne({ where: { id: 'user:abc123' } });
+     * // Find a user with cars and their brands
+     * await userOrm.findOne({
+     *   include: [
+     *     {
+     *       model: 'cars',
+     *       fields: ['id'],
+     *       include: [
+     *         { model: 'brand', fields: ['id', 'name'] }
+     *       ]
+     *     }
+     *   ]
+     * });
      *
      * @example
-     * // Find a user with profile, selecting only id and name (type-safe fields and include)
-     * await userOrm.findOne({ fields: ['id', 'name'], include: [{ model: 'profile', fields: ['bio'] }] });
-     *
-     * @example
-     * // Find a user with a custom SurrealQL clause
-     * await userOrm.findOne({ surrealql: 'WHERE age > 18' });
+     * // Find a user with only id and name fields
+     * await userOrm.findOne({ fields: ['id', 'name'] });
      *
      * @note
-     *   - The 'fields' option in includes will select those fields in the main SELECT clause (e.g., 'profile.id').
-     *   - The 'where' option in includes is NOT natively supported by SurrealDB FETCH and will NOT filter included records in the query. You may post-process results in JS if needed.
+     *   - The 'fields' option in includes will select those fields in the main SELECT clause (e.g., 'cars.id').
+     *   - The 'include' option is fully recursive and type-safe: only valid relation fields and their valid fields/includes are allowed at each level.
+     *   - The 'where' option is flexible and not type-checked.
+     *   - All options are autocompleted and type-checked based on your interface structure.
      *   - Always returns a single record (or null), never an array.
      */
-    public async findOne<
-        TField extends string = keyof TTableSchema & string,
-        TModel extends string = string
-    >(
-        options?: SelectOneOptionsI<TField, TModel>
+    public async findOne(
+        options?: SelectOneOptionsI<TTableSchema>
     ): Promise<any | null | ErrorResponse> {
         try {
             if (!this.surreal) throw new Error("Not connected to SurrealDB");

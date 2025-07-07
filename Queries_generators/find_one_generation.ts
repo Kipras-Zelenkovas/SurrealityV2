@@ -4,14 +4,14 @@ import { collectIncludeFields, generateFetchClause, generateWhereClause } from '
 /**
  * Generates a SurrealDB SELECT query string for findOne/select single record operations.
  * @param {string} table - The table name to select from.
- * @param {SelectOneOptionsI} options - Query options (fields, where, include, surrealql, raw, etc.)
+ * @param {SelectOneOptionsI<T>} options - Query options (fields, where, include, surrealql, raw, etc.)
  * @returns {string} - The generated SurrealDB SELECT query string for a single record.
  */
-export function generateFindOneQuery(table: string, options?: SelectOneOptionsI): string {
+export function generateFindOneQuery<T extends object = object>(table: string, options?: SelectOneOptionsI<T>): string {
     // Collect all fields for SELECT (main + includes)
     const selectFields: string[] = [];
     if (options?.fields && options.fields.length > 0) {
-        selectFields.push(...options.fields);
+        selectFields.push(...(options.fields as string[]));
     }
     if (options?.include) {
         selectFields.push(...collectIncludeFields(options.include));
