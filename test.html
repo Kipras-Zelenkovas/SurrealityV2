@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+        <style>
+            #grid-container {
+                display: grid;
+                grid-template-columns: repeat(24, 1fr);
+                height: 100vh;
+                position: relative;
+            }
+
+            #div1 {
+                grid-column: 1 / 13;
+                background-color: lightcoral;
+            }
+
+            #div2 {
+                grid-column: 13 / 25;
+                background-color: lightgreen;
+            }
+
+            #dragbar {
+                position: absolute;
+                top: 0;
+                height: 100%;
+                width: 5px;
+                background-color: gray;
+                cursor: ew-resize;
+            }
+
+            .no-select {
+                -webkit-user-select: none;
+                -khtml-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="grid-container">
+            <div id="div1"></div>
+            <div id="div2"></div>
+            <div id="dragbar"></div>
+        </div>
+        <script>
+            const gridContainer = document.getElementById("grid-container");
+            const div1 = document.getElementById("div1");
+            const div2 = document.getElementById("div2");
+            const dragbar = document.getElementById("dragbar");
+
+            let columnWidth;
+            let currentM = 13;
+            let initialMousePosition;
+            let initialDragbarPosition;
+
+            function updateColumnWidth() {
+                columnWidth = gridContainer.offsetWidth / 24;
+                setDragbarPosition(currentM);
+            }
+
+            function setDragbarPosition(m) {
+                let left = (m - 1) * columnWidth;
+                dragbar.style.left = left + "px";
+                updateDivPositions(m);
+            }
+
+            function updateDivPositions(m) {
+                div1.style.gridColumn = "1 / " + m;
+                div2.style.gridColumn = m + " / 25";
+            }
+
+            function startResize(e) {
+                initialMousePosition = e.clientX;
+                initialDragbarPosition = parseInt(dragbar.style.left, 10);
+                document.body.classList.add("no-select");
+                document.addEventListener("mousemove", resize);
+                document.addEventListener("mouseup", stopResize);
+            }
+
+            function resize(e) {
+                let newPosition =
+                    initialDragbarPosition + (e.clientX - initialMousePosition);
+                let snappedPosition =
+                    Math.round(newPosition / columnWidth) * columnWidth;
+                let minPosition = columnWidth;
+                let maxPosition = 23 * columnWidth;
+                snappedPosition = Math.max(
+                    minPosition,
+                    Math.min(snappedPosition, maxPosition)
+                );
+                dragbar.style.left = snappedPosition + "px";
+                currentM = Math.round(snappedPosition / columnWidth) + 1;
+                updateDivPositions(currentM);
+            }
+
+            function stopResize() {
+                document.body.classList.remove("no-select");
+                document.removeEventListener("mousemove", resize);
+                document.removeEventListener("mouseup", stopResize);
+            }
+
+            updateColumnWidth();
+            window.addEventListener("resize", updateColumnWidth);
+            dragbar.addEventListener("mousedown", startResize);
+        </script>
+    </body>
+</html>
