@@ -1,9 +1,12 @@
 /**
  * Options for creating a record in SurrealDB.
+ *
+ * @template T - The table schema interface. Enables type-safe autocomplete for all fields in the current table, while remaining flexible for advanced use cases.
  */
 export interface CreateOptionsI<T extends object = object> {
     /**
      * The data to insert. Can be an object (single record) or array (multiple records).
+     * Fully type-safe and autocompleted from the table schema.
      */
     data: T | T[];
     /**
@@ -11,7 +14,7 @@ export interface CreateOptionsI<T extends object = object> {
      */
     id?: string;
     /**
-     * If true, use SurrealDB CONTENT syntax. If false or omitted, use SET syntax.
+     * If true or omitted, use SurrealDB CONTENT syntax. If false, use SET syntax.
      */
     content?: boolean;
     /**

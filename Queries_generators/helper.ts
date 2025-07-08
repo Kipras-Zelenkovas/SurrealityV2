@@ -55,8 +55,12 @@ export function collectIncludeFields<T>(
 
 /**
  * Generates a SurrealDB WHERE clause from a where object.
+ *
+ * @template T - The table schema interface. Enables type-safe autocomplete for all fields in the current table, while remaining flexible for advanced use cases.
+ * @param {Partial<T> & Record<string, any>} where - Filtering conditions (type-safe and flexible).
+ * @returns {string} - The generated WHERE clause, or an empty string if no conditions.
  */
-export function generateWhereClause(where?: Record<string, any>): string {
+export function generateWhereClause<T = any>(where?: Partial<T> & Record<string, any>): string {
     if (!where) return '';
     const conditions = Object.entries(where).map(([key, value]) => {
         if (typeof value === 'string') {

@@ -13,6 +13,10 @@ import { generateFindOneQuery } from './Queries_generators/find_one_generation';
 import { SelectOneOptionsI } from './Interfaces/SelectOneOptionsI';
 import { CreateOptionsI } from './Interfaces/CreateOptionsI';
 import { generateCreateQuery } from './Queries_generators/create_generation';
+import { UpdateOptionsI } from './Interfaces/UpdateOptionsI';
+import { generateUpdateQuery } from './Queries_generators/update_generation';
+import { DeleteOptionsI } from './Interfaces/DeleteOptionsI';
+import { generateDeleteQuery } from './Queries_generators/delete_generation';
 
 /**
  * Surreality ORM class for SurrealDB.
@@ -213,10 +217,10 @@ export class Surreality<TTableSchema extends object = object> {
      *
      * @param {SelectOptionsI<TTableSchema>} [options] - Query options for selecting records.
      *   - fields: Array of field names to select from the main table (autocompleted from the interface).
-     *   - where: Filtering conditions (flexible, not type-checked).
-     *   - order: Field(s) to order by (type-safe).
+     *   - where: Filtering conditions (type-safe and flexible).
+     *   - order: Field(s) to order by. Accepts a string, array of strings, or strings prefixed with '-' for descending order (e.g., 'age', ['name', '-age']).
      *   - limit: Maximum number of records to return.
-     *   - offset: Number of records to skip.
+     *   - offset: Number of records to skip (for pagination).
      *   - raw: If true, returns raw SurrealDB response.
      *   - surrealql: Raw SurrealQL clause (overrides other options).
      *   - include: Array of nested, type-safe includes for related models. Each include allows only valid relation fields, and its own fields/include options are autocompleted from the related interface.
@@ -246,10 +250,28 @@ export class Surreality<TTableSchema extends object = object> {
      * // Get users with cars, but only select car ids
      * await userOrm.findAll({ include: [{ model: 'cars', fields: ['id'] }] });
      *
+     * @example
+     * // Get users ordered by age descending, then name ascending
+     * await userOrm.findAll({ order: ['-age', 'name'] });
+     *
+     * @example
+     * // Get users with pagination (limit and offset)
+     * await userOrm.findAll({ limit: 10, offset: 20 });
+     *
+     * @example
+     * // Combine where, order, limit, and includes
+     * await userOrm.findAll({
+     *   where: { active: true },
+     *   order: '-createdAt',
+     *   limit: 5,
+     *   include: [{ model: 'cars', fields: ['id'] }]
+     * });
+     *
      * @note
+     *   - The 'order' option accepts a string (field name), an array of field names, or field names prefixed with '-' for descending order. E.g., 'age', ['-age', 'name'].
      *   - The 'fields' option in includes will select those fields in the main SELECT clause (e.g., 'cars.id').
      *   - The 'include' option is fully recursive and type-safe: only valid relation fields and their valid fields/includes are allowed at each level.
-     *   - The 'where' option is flexible and not type-checked.
+     *   - The 'where' option is type-safe and flexible.
      *   - All options are autocompleted and type-checked based on your interface structure.
      */
     public async findAll(
@@ -417,6 +439,124 @@ export class Surreality<TTableSchema extends object = object> {
                 message = "Unknown error occured";
             }
             const context = `create on table ${this.table}`;
+
+            console.error(`Failed to execute ${context}: ${message}`);
+            return {
+                error: {
+                    status: false,
+                    message: `Failed to execute ${context}: ${message}`,
+                },
+            };
+        }
+    }
+
+    /**
+     * Updates records in the table.
+     * Supports SurrealDB CONTENT and SET syntax, updating by record ID or WHERE clause, and custom SurrealQL.
+     *
+     * @template TTableSchema - The schema type for the table (for type-safe field suggestions).
+     * @param {UpdateOptionsI<TTableSchema>} options - Options for the update operation.
+     * @returns {Promise<any | ErrorResponse>} - The updated record(s) or ErrorResponse on failure.
+     *
+     * @example
+     * // Update a user by ID
+     * await userOrm.update({ id: 'user:alice', data: { age: 31 } });
+     *
+     * @example
+     * // Update users matching a WHERE clause
+     * await userOrm.update({ where: { age: 30 }, data: { active: false } });
+     *
+     * @example
+     * // Use SET syntax instead of CONTENT
+     * await userOrm.update({ id: 'user:alice', data: { age: 32 }, content: false });
+     *
+     * @example
+     * // Use a raw SurrealQL query
+     * await userOrm.update({ surrealql: 'UPDATE user SET active = true WHERE age > 18' });
+     */
+    public async update(options: UpdateOptionsI<TTableSchema>): Promise<any | ErrorResponse> {
+        try {
+            if (!this.surreal) throw new Error("Not connected to SurrealDB");
+            if (!this.table) throw new Error("Table is not written");
+
+            const query = generateUpdateQuery<TTableSchema>(this.table, options);
+            const result = await this.surreal.query(query);
+            if (options.raw) return result;
+            if (
+                Array.isArray(result) &&
+                result.length > 0 &&
+                typeof result[0] === 'object' &&
+                result[0] !== null &&
+                'result' in result[0]
+            ) {
+                return (result[0] as { result: any }).result;
+            }
+            return result;
+        } catch (error: unknown) {
+            let message: string;
+            if (error instanceof Error && typeof error.message === 'string') {
+                message = error.message;
+            } else {
+                message = "Unknown error occured";
+            }
+            const context = `update on table ${this.table}`;
+
+            console.error(`Failed to execute ${context}: ${message}`);
+            return {
+                error: {
+                    status: false,
+                    message: `Failed to execute ${context}: ${message}`,
+                },
+            };
+        }
+    }
+
+    /**
+     * Deletes records from the table.
+     * Supports deleting by record ID or WHERE clause, and custom SurrealQL.
+     *
+     * @template TTableSchema - The schema type for the table (for type-safe field suggestions).
+     * @param {DeleteOptionsI<TTableSchema>} options - Options for the delete operation.
+     * @returns {Promise<any | ErrorResponse>} - The deleted record(s) or ErrorResponse on failure.
+     *
+     * @example
+     * // Delete a user by ID
+     * await userOrm.delete({ id: 'user:alice' });
+     *
+     * @example
+     * // Delete users matching a WHERE clause
+     * await userOrm.delete({ where: { age: 30 } });
+     *
+     * @example
+     * // Use a raw SurrealQL query
+     * await userOrm.delete({ surrealql: 'DELETE user WHERE age < 18' });
+     */
+    public async delete(options: DeleteOptionsI<TTableSchema>): Promise<any | ErrorResponse> {
+        try {
+            if (!this.surreal) throw new Error("Not connected to SurrealDB");
+            if (!this.table) throw new Error("Table is not written");
+
+            const query = generateDeleteQuery<TTableSchema>(this.table, options);
+            const result = await this.surreal.query(query);
+            if (options.raw) return result;
+            if (
+                Array.isArray(result) &&
+                result.length > 0 &&
+                typeof result[0] === 'object' &&
+                result[0] !== null &&
+                'result' in result[0]
+            ) {
+                return (result[0] as { result: any }).result;
+            }
+            return result;
+        } catch (error: unknown) {
+            let message: string;
+            if (error instanceof Error && typeof error.message === 'string') {
+                message = error.message;
+            } else {
+                message = "Unknown error occured";
+            }
+            const context = `delete on table ${this.table}`;
 
             console.error(`Failed to execute ${context}: ${message}`);
             return {
