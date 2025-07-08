@@ -252,8 +252,7 @@ export class Surreality<TTableSchema extends object = object> {
                 options
             );
 
-            console.log(fieldQuery);
-            // await this.surreal.query(fieldQuery);
+            await this.surreal.query(fieldQuery);
         } catch (error) {
             const message =
                 error instanceof Error

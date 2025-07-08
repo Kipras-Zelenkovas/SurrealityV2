@@ -217,8 +217,7 @@ export class Surreality {
             if (!this.table)
                 throw new Error("Table is not written");
             const fieldQuery = generateFieldQuery(this.table, name, type, options);
-            console.log(fieldQuery);
-            // await this.surreal.query(fieldQuery);
+            await this.surreal.query(fieldQuery);
         }
         catch (error) {
             const message = error instanceof Error
