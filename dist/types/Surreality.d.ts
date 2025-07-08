@@ -93,7 +93,7 @@ import { DeleteOptionsI } from './Interfaces/DeleteOptionsI';
  */
 export declare class Surreality<TTableSchema extends object = object> {
     private surreal;
-    private table;
+    table: string | null;
     constructor(surreal: Surreal, table: string);
     /**
      * Defines a table in SurrealDB with the specified base type and options.

@@ -18,17 +18,17 @@ import { casting } from "./Utils/casting";
 export class Manager {
     /**
      * The SurrealDB client instance.
-     * @private
+     * @public
      * @type {Surreal | null}
      */
-    private surreal: Surreal | null = null;
+    public surreal: Surreal | null = null;
 
     /**
      * Configuration for the SurrealDB connection.
-     * @private
+     * @public
      * @type {SurrealConfig}
      */
-    private config: SurrealConfig;
+    public config: SurrealConfig;
 
     /**
      * Creates an instance of Manager.
@@ -70,7 +70,7 @@ export class Manager {
      * // Connect to a specific namespace
      * await manager.connect("namespace");
      */
-    protected async connect(
+    public async connect(
         mode: SurrealScope = "DATABASE"
     ): Promise<void | ErrorResponse> {
         try {
@@ -149,7 +149,7 @@ export class Manager {
      *     console.error(result.error.message);
      * }
      */
-    protected async query(query: string): Promise<any | ErrorResponse> {
+    public async query(query: string): Promise<any | ErrorResponse> {
         try {
             if (!this.surreal) throw new Error("Not connected to SurrealDB");
 
@@ -205,7 +205,7 @@ export class Manager {
      * // Get user information in the namespace
      * const userInfo = await manager.getInfo("namespace", "john_doe");
      */
-    protected async getInfo(
+    public async getInfo(
         scope: SurrealScope,
         user?: string
     ): Promise<any | ErrorResponse | string> {
@@ -257,7 +257,7 @@ export class Manager {
      * // Change both
      * await manager.use({ namespace: "prod", database: "analytics" });
      */
-    protected async use(params: {
+    public async use(params: {
         namespace?: string;
         database?: string;
     }): Promise<void | ErrorResponse> {
@@ -351,7 +351,7 @@ export class Manager {
      *     console.error(result.error.message);
      * }
      */
-    protected async defineUser(
+    public async defineUser(
         scope: SurrealScope,
         role: RoleScope,
         username: string,
@@ -440,7 +440,7 @@ export class Manager {
      *     console.error(result.error.message);
      * }
      */
-    protected async defineParam(
+    public async defineParam(
         name: string,
         value: any,
         opts?: {
@@ -518,7 +518,7 @@ export class Manager {
      *     console.error(result.error.message);
      * }
      */
-    protected async defineNamespace(
+    public async defineNamespace(
         name: string,
         opts?: {
             overwrite?: boolean;
@@ -587,7 +587,7 @@ export class Manager {
      *     console.error(result.error.message);
      * }
      */
-    protected async defineDatabase(
+    public async defineDatabase(
         name: string,
         opts?: {
             overwrite?: boolean;
@@ -626,7 +626,7 @@ export class Manager {
      * @example
      * await manager.disconnect();
      */
-    protected async disconnect(): Promise<void> {
+    public async disconnect(): Promise<void> {
         if (this.surreal) {
             await this.surreal.close();
             this.surreal = null;

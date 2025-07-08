@@ -7,13 +7,13 @@ import { casting } from "./Utils/casting";
 export class Manager {
     /**
      * The SurrealDB client instance.
-     * @private
+     * @public
      * @type {Surreal | null}
      */
     surreal = null;
     /**
      * Configuration for the SurrealDB connection.
-     * @private
+     * @public
      * @type {SurrealConfig}
      */
     config;

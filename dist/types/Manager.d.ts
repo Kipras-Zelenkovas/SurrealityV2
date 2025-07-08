@@ -1,5 +1,6 @@
+import Surreal from "surrealdb";
 import { RoleScope, SurrealScope, PermissionScope } from "./Interfaces/ManagerI";
-import { ErrorResponse, DurationScope } from "./Interfaces/GeneralI";
+import { SurrealConfig, ErrorResponse, DurationScope } from "./Interfaces/GeneralI";
 /**
  * Manager class for interacting with SurrealDB.
  * Provides methods to connect, disconnect, and retrieve information from the database.
@@ -7,16 +8,16 @@ import { ErrorResponse, DurationScope } from "./Interfaces/GeneralI";
 export declare class Manager {
     /**
      * The SurrealDB client instance.
-     * @private
+     * @public
      * @type {Surreal | null}
      */
-    private surreal;
+    surreal: Surreal | null;
     /**
      * Configuration for the SurrealDB connection.
-     * @private
+     * @public
      * @type {SurrealConfig}
      */
-    private config;
+    config: SurrealConfig;
     /**
      * Creates an instance of Manager.
      * @constructor
@@ -42,7 +43,7 @@ export declare class Manager {
      * // Connect to a specific namespace
      * await manager.connect("namespace");
      */
-    protected connect(mode?: SurrealScope): Promise<void | ErrorResponse>;
+    connect(mode?: SurrealScope): Promise<void | ErrorResponse>;
     /**
      * Executes a raw SurrealQL query against the connected SurrealDB instance.
      *
@@ -70,7 +71,7 @@ export declare class Manager {
      *     console.error(result.error.message);
      * }
      */
-    protected query(query: string): Promise<any | ErrorResponse>;
+    query(query: string): Promise<any | ErrorResponse>;
     /**
      * Retrieves information from the SurrealDB instance based on the specified scope or user on that scope.
      *
@@ -85,7 +86,7 @@ export declare class Manager {
      * // Get user information in the namespace
      * const userInfo = await manager.getInfo("namespace", "john_doe");
      */
-    protected getInfo(scope: SurrealScope, user?: string): Promise<any | ErrorResponse | string>;
+    getInfo(scope: SurrealScope, user?: string): Promise<any | ErrorResponse | string>;
     /**
      * Changes the current namespace/database scope in SurrealDB.
      * Can update either/both values while maintaining existing context.
@@ -109,7 +110,7 @@ export declare class Manager {
      * // Change both
      * await manager.use({ namespace: "prod", database: "analytics" });
      */
-    protected use(params: {
+    use(params: {
         namespace?: string;
         database?: string;
     }): Promise<void | ErrorResponse>;
@@ -162,7 +163,7 @@ export declare class Manager {
      *     console.error(result.error.message);
      * }
      */
-    protected defineUser(scope: SurrealScope, role: RoleScope, username: string, password: string, session?: {
+    defineUser(scope: SurrealScope, role: RoleScope, username: string, password: string, session?: {
         time: bigint;
         unit: DurationScope;
     }, token?: {
@@ -209,7 +210,7 @@ export declare class Manager {
      *     console.error(result.error.message);
      * }
      */
-    protected defineParam(name: string, value: any, opts?: {
+    defineParam(name: string, value: any, opts?: {
         overwrite?: boolean;
         ifNotExists?: boolean;
     }, permissions?: PermissionScope): Promise<any | ErrorResponse>;
@@ -247,7 +248,7 @@ export declare class Manager {
      *     console.error(result.error.message);
      * }
      */
-    protected defineNamespace(name: string, opts?: {
+    defineNamespace(name: string, opts?: {
         overwrite?: boolean;
         ifNotExists?: boolean;
     }): Promise<any | ErrorResponse>;
@@ -288,7 +289,7 @@ export declare class Manager {
      *     console.error(result.error.message);
      * }
      */
-    protected defineDatabase(name: string, opts?: {
+    defineDatabase(name: string, opts?: {
         overwrite?: boolean;
         ifNotExists?: boolean;
     }): Promise<any | ErrorResponse>;
@@ -299,5 +300,5 @@ export declare class Manager {
      * @example
      * await manager.disconnect();
      */
-    protected disconnect(): Promise<void>;
+    disconnect(): Promise<void>;
 }

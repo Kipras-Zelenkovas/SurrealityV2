@@ -105,7 +105,7 @@ import { generateDeleteQuery } from './Queries_generators/delete_generation';
 export class Surreality<TTableSchema extends object = object> {
     private surreal: Surreal | null = null;
 
-    private table: string | null = null;
+    public table: string | null = null;
 
     constructor(surreal: Surreal, table: string) {
         this.surreal = surreal;
