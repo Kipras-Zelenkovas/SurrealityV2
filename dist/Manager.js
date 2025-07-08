@@ -526,4 +526,7 @@ export class Manager {
             this.surreal = null;
         }
     }
+    async getSurreal() {
+        return this.surreal;
+    }
 }

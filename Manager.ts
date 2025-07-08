@@ -632,4 +632,8 @@ export class Manager {
             this.surreal = null;
         }
     }
+
+    public async getSurreal(): Promise<Surreal | null> {
+        return this.surreal;
+    }
 }
