@@ -586,3 +586,4 @@ export class Surreality {
         }
     }
 }
+export { Manager } from './Manager';

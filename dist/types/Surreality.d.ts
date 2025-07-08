@@ -350,3 +350,4 @@ export declare class Surreality<TTableSchema extends object = object> {
      */
     delete(options: DeleteOptionsI<TTableSchema>): Promise<any | ErrorResponse>;
 }
+export { Manager } from './Manager';

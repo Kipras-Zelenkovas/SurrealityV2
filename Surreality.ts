@@ -628,3 +628,5 @@ export class Surreality<TTableSchema extends object = object> {
         }
     }
 }
+
+export { Manager } from './Manager';
