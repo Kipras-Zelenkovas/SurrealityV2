@@ -50,6 +50,10 @@ interface User {
 
 ### 2. Connect and Initialize ORM
 
+You can initialize the ORM using either a direct SurrealDB connection or via the `Manager` class.
+
+**Option 1: Using Surreal directly**
+
 ```ts
 import Surreal from 'surrealdb';
 import { Surreality } from 'surreality';
@@ -57,6 +61,26 @@ import { Surreality } from 'surreality';
 const surreal = new Surreal();
 // Provide authentication options as needed
 await surreal.connect('http://localhost:8000', { });
+
+const userOrm = new Surreality<User>(surreal, 'user');
+```
+
+**Option 2: Using Manager**
+
+```ts
+import { Manager } from './Manager';
+import { Surreality } from 'surreality';
+
+const manager = new Manager(
+  "http://localhost:8000", // SurrealDB URL
+  "my_namespace",          // Namespace
+  "my_database",           // Database
+  "username",              // Username
+  "password"               // Password
+);
+
+await manager.connect();
+const surreal = manager.surreal; // Access the SurrealDB instance
 
 const userOrm = new Surreality<User>(surreal, 'user');
 ```
@@ -116,6 +140,40 @@ await userOrm.update({ id: 'user:alice', data: { surname: 'Johnson' } });
 ```ts
 await userOrm.delete({ id: 'user:alice' });
 ```
+
+---
+
+## Using Manager.ts
+
+The `Manager` class provides advanced control over your SurrealDB instance, including connecting, running raw queries, and managing namespaces, databases, users, and parameters. Use it for administrative or setup tasks that are outside the scope of model-level operations.
+
+### Example
+
+```ts
+import { Manager } from './Manager';
+
+// Create a manager instance (with default or custom connection options)
+const manager = new Manager(
+  "http://localhost:8000", // SurrealDB URL
+  "my_namespace",          // Namespace
+  "my_database",           // Database
+  "username",              // Username
+  "password"               // Password
+);
+
+// Connect to SurrealDB (default is database scope)
+await manager.connect();
+
+// Run a raw SurrealQL query
+const result = await manager.query("SELECT * FROM user;");
+console.log(result);
+
+// (Optional) Create a new namespace or database
+await manager.defineNamespace("new_namespace");
+await manager.defineDatabase("new_database");
+```
+
+**Note:** The `Manager` class is intended for administrative and setup tasks. For regular CRUD operations on your data models, use the `Surreality` ORM class as shown above.
 
 ---
 

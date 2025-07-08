@@ -1,12 +1,22 @@
 {
     "name": "Surreality",
-    "version": "2.0.0",
+    "version": "2.0.1",
     "author": "Prorox",
     "license": "MIT",
     "type": "module",
+    "main": "dist/Surreality.js",
+    "types": "dist/types/Surreality.d.ts",
+    "exports": {
+        ".": {
+            "import": "./dist/Surreality.js",
+            "types": "./dist/types/Surreality.d.ts"
+        }
+    },
+    "files": ["dist"],
     "scripts": {
         "test": "node ./Test/manager.test.js",
-        "build": "tsc && node fixImports.js"
+        "build": "tsc && node fixImports.js",
+        "prepublishOnly": "npm run build"
     },
     "jest": {
         "transform": {}
