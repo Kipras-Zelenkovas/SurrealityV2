@@ -1,15 +1,7 @@
-import Surreal, { Duration, toSurrealqlString } from "surrealdb";
-import {
-    RoleScope,
-    SurrealScope,
-    PermissionScope,
-} from "./Interfaces/ManagerI";
-import {
-    SurrealConfig,
-    ErrorResponse,
-    DurationScope,
-} from "./Interfaces/GeneralI";
-import { casting } from "./Utils/casting";
+import Surreal, { Duration, toSurrealqlString } from "surrealdb"
+import { RoleScope, SurrealScope, PermissionScope } from "./Interfaces/ManagerI"
+import { SurrealConfig, ErrorResponse, DurationScope } from "./Interfaces/GeneralI"
+import { casting } from "./Utils/casting"
 
 /**
  * Manager class for interacting with SurrealDB.
@@ -21,14 +13,14 @@ export class Manager {
      * @public
      * @type {Surreal | null}
      */
-    public surreal: Surreal | null = null;
+    public surreal: Surreal | null = null
 
     /**
      * Configuration for the SurrealDB connection.
      * @public
      * @type {SurrealConfig}
      */
-    public config: SurrealConfig;
+    public config: SurrealConfig
 
     /**
      * Creates an instance of Manager.
@@ -39,20 +31,14 @@ export class Manager {
      * @param {string} [username="surrealist"] - The username for authentication.
      * @param {string} [password="surrealist"] - The password for authentication.
      */
-    constructor(
-        url: string = "http://localhost:8080",
-        namespace: string = "surreality",
-        database: string = "surreality",
-        username: string = "surrealist",
-        password: string = "surrealist"
-    ) {
+    constructor(url: string = "http://localhost:8080", namespace: string = "surreality", database: string = "surreality", username: string = "surrealist", password: string = "surrealist") {
         this.config = {
             url,
             namespace,
             database,
             username,
             password,
-        };
+        }
     }
 
     /**
@@ -70,55 +56,50 @@ export class Manager {
      * // Connect to a specific namespace
      * await manager.connect("namespace");
      */
-    public async connect(
-        mode: SurrealScope = "DATABASE"
-    ): Promise<void | ErrorResponse> {
+    public async connect(mode: SurrealScope = "DATABASE"): Promise<void | ErrorResponse> {
         try {
-            const db = new Surreal();
-            const options: any = {};
+            const db = new Surreal()
+            const options: any = {}
 
             switch (mode) {
                 case "ROOT":
                     options.auth = {
                         username: this.config.username,
                         password: this.config.password,
-                    };
-                    break;
+                    }
+                    break
 
                 case "NAMESPACE":
-                    options.namespace = this.config.namespace;
+                    options.namespace = this.config.namespace
                     options.auth = {
                         username: this.config.username,
                         password: this.config.password,
                         namespace: this.config.namespace,
-                    };
-                    break;
+                    }
+                    break
 
                 default: // 'DATABASE' default
-                    options.namespace = this.config.namespace;
-                    options.database = this.config.database;
+                    options.namespace = this.config.namespace
+                    options.database = this.config.database
                     options.auth = {
                         username: this.config.username,
                         password: this.config.password,
                         namespace: this.config.namespace,
                         database: this.config.database,
-                    };
+                    }
             }
 
-            await db.connect(this.config.url, options);
-            this.surreal = db;
+            await db.connect(this.config.url, options)
+            this.surreal = db
         } catch (error) {
-            const message =
-                error instanceof Error
-                    ? error.message
-                    : "Unknown error occurred";
-            console.error(`Connection failed (${mode}): ${message}`);
+            const message = error instanceof Error ? error.message : "Unknown error occurred"
+            console.error(`Connection failed (${mode}): ${message}`)
             return {
                 error: {
                     status: false,
                     message: `Connection failed (${mode}): ${message}`,
                 },
-            };
+            }
         }
     }
 
@@ -151,30 +132,26 @@ export class Manager {
      */
     public async query(query: string): Promise<any | ErrorResponse> {
         try {
-            if (!this.surreal) throw new Error("Not connected to SurrealDB");
+            if (!this.surreal) throw new Error("Not connected to SurrealDB")
 
-            return await this.surreal.query(query);
+            return await this.surreal.query(query)
         } catch (error) {
-            const message =
-                error instanceof Error
-                    ? error.message
-                    : "Unknown error occurred";
+            const message = error instanceof Error ? error.message : "Unknown error occurred"
 
-            console.error(`Failed to execute query: ${message}`);
+            console.error(`Failed to execute query: ${message}`)
             return {
                 error: {
                     status: false,
                     message: `Failed to execute query: ${message}`,
                 },
-            };
+            }
         }
     }
 
     // async return(query: string): Promise<any | ErrorResponse> {
     //     try {
     //         if(!this.surreal) throw new Error("Not connected to SurrealDB");
-            
-            
+
     //     } catch (error) {
     //         const message =
     //             error instanceof Error
@@ -205,32 +182,24 @@ export class Manager {
      * // Get user information in the namespace
      * const userInfo = await manager.getInfo("namespace", "john_doe");
      */
-    public async getInfo(
-        scope: SurrealScope,
-        user?: string
-    ): Promise<any | ErrorResponse | string> {
+    public async getInfo(scope: SurrealScope, user?: string): Promise<any | ErrorResponse | string> {
         try {
-            if (!this.surreal) throw new Error("Not connected to SurrealDB");
+            if (!this.surreal) throw new Error("Not connected to SurrealDB")
 
-            const query = user
-                ? `INFO FOR USER ${user} ON ${scope};`
-                : `INFO FOR ${scope};`;
+            const query = user ? `INFO FOR USER ${user} ON ${scope};` : `INFO FOR ${scope};`
 
-            return await this.surreal.query(query);
+            return await this.surreal.query(query)
         } catch (error) {
-            const message =
-                error instanceof Error
-                    ? error.message
-                    : "Unknown error occurred";
-            const context = user ? `${scope} user info` : `${scope} info`;
+            const message = error instanceof Error ? error.message : "Unknown error occurred"
+            const context = user ? `${scope} user info` : `${scope} info`
 
-            console.error(`Failed to get ${context}: ${message}`);
+            console.error(`Failed to get ${context}: ${message}`)
             return {
                 error: {
                     status: false,
                     message: `Failed to get ${context}: ${message}`,
                 },
-            };
+            }
         }
     }
 
@@ -257,48 +226,39 @@ export class Manager {
      * // Change both
      * await manager.use({ namespace: "prod", database: "analytics" });
      */
-    public async use(params: {
-        namespace?: string;
-        database?: string;
-    }): Promise<void | ErrorResponse> {
+    public async use(params: { namespace?: string; database?: string }): Promise<void | ErrorResponse> {
         try {
-            if (!this.surreal) throw new Error("Not connected to SurrealDB");
+            if (!this.surreal) throw new Error("Not connected to SurrealDB")
 
             // Merge with new values
-            const targetNs = params.namespace ?? this.config.namespace;
-            const targetDb = params.database ?? this.config.database;
+            const targetNs = params.namespace ?? this.config.namespace
+            const targetDb = params.database ?? this.config.database
 
             if (!targetNs || !targetDb) {
-                throw new Error("namespace and database must be defined");
+                throw new Error("namespace and database must be defined")
             }
 
             // Update SurrealDB scope
             await this.surreal.use({
                 namespace: targetNs,
                 database: targetDb,
-            });
+            })
 
             // Store new values
-            this.config.namespace = targetNs;
-            this.config.database = targetDb;
+            this.config.namespace = targetNs
+            this.config.database = targetDb
         } catch (error) {
-            const message =
-                error instanceof Error
-                    ? error.message
-                    : "Unknown error occurred";
+            const message = error instanceof Error ? error.message : "Unknown error occurred"
 
-            const changes = [
-                ...(params.namespace ? [`namespace: ${params.namespace}`] : []),
-                ...(params.database ? [`database: ${params.database}`] : []),
-            ].join(" and ");
+            const changes = [...(params.namespace ? [`namespace: ${params.namespace}`] : []), ...(params.database ? [`database: ${params.database}`] : [])].join(" and ")
 
-            console.error(`Scope update failed (${changes}): ${message}`);
+            console.error(`Scope update failed (${changes}): ${message}`)
             return {
                 error: {
                     status: false,
                     message: `Scope update failed: ${message}`,
                 },
-            };
+            }
         }
     }
 
@@ -357,46 +317,37 @@ export class Manager {
         username: string,
         password: string,
         session?: {
-            time: bigint;
-            unit: DurationScope;
+            time: bigint
+            unit: DurationScope
         },
         token?: {
-            time: bigint;
-            unit: DurationScope;
+            time: bigint
+            unit: DurationScope
         }
     ): Promise<any | ErrorResponse> {
         try {
-            if (!this.surreal) throw new Error("Not connected to SurrealDB");
+            if (!this.surreal) throw new Error("Not connected to SurrealDB")
 
             if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
-                throw new Error("Invalid username format");
+                throw new Error("Invalid username format")
             }
 
             const query = `DEFINE USER ${username} ON ${scope} PASSWORD '${password}' ROLES ${role}${
-                session && !token
-                    ? ` DURATION FOR SESSION ${session.time}${session.unit}`
-                    : !session && token
-                    ? ` DURATION FOR TOKEN ${token.time}${token.unit}`
-                    : session && token
-                    ? ` DURATION FOR SESSION ${session.time}${session.unit}, FOR TOKEN ${token.time}${token.unit}`
-                    : ""
-            };`;
+                session && !token ? ` DURATION FOR SESSION ${session.time}${session.unit}` : !session && token ? ` DURATION FOR TOKEN ${token.time}${token.unit}` : session && token ? ` DURATION FOR SESSION ${session.time}${session.unit}, FOR TOKEN ${token.time}${token.unit}` : ""
+            };`
 
-            return await this.surreal.query(query);
+            return await this.surreal.query(query)
         } catch (error) {
-            const message =
-                error instanceof Error
-                    ? error.message
-                    : "Unknown error occured";
-            const context = `${username} with ${role} role on ${scope} scope`;
+            const message = error instanceof Error ? error.message : "Unknown error occured"
+            const context = `${username} with ${role} role on ${scope} scope`
 
-            console.error(`Failed to define ${context}: ${message}`);
+            console.error(`Failed to define ${context}: ${message}`)
             return {
                 error: {
                     status: false,
                     message: `Failed to define ${context}: ${message}`,
                 },
-            };
+            }
         }
     }
 
@@ -444,43 +395,30 @@ export class Manager {
         name: string,
         value: any,
         opts?: {
-            overwrite?: boolean;
-            ifNotExists?: boolean;
+            overwrite?: boolean
+            ifNotExists?: boolean
         },
         permissions?: PermissionScope
     ): Promise<any | ErrorResponse> {
         try {
-            if (!this.surreal) throw new Error("Not connected to SurrealDB");
+            if (!this.surreal) throw new Error("Not connected to SurrealDB")
 
-            const query = `DEFINE PARAM ${
-                opts && opts.overwrite ? `OVERWRITE ` : ""
-            }${
-                opts && opts.ifNotExists ? `IF NOT EXISTS ` : ""
-            }$${name} VALUE ${casting(value)}${
-                permissions && permissions == "NONE"
-                    ? ` PERMISSIONS NONE`
-                    : permissions && permissions == "FULL"
-                    ? ` PERMISSIONS FULL`
-                    : permissions && typeof permissions === "string"
-                    ? ` PERMISSIONS ${permissions}`
-                    : ""
-            };`;
+            const query = `DEFINE PARAM ${opts && opts.overwrite ? `OVERWRITE ` : ""}${opts && opts.ifNotExists ? `IF NOT EXISTS ` : ""}$${name} VALUE ${casting(value)}${
+                permissions && permissions == "NONE" ? ` PERMISSIONS NONE` : permissions && permissions == "FULL" ? ` PERMISSIONS FULL` : permissions && typeof permissions === "string" ? ` PERMISSIONS ${permissions}` : ""
+            };`
 
-            return await this.surreal.query(query);
+            return await this.surreal.query(query)
         } catch (error) {
-            const message =
-                error instanceof Error
-                    ? error.message
-                    : "Unknown error occured";
-            const context = `parameter with name of ${name} and value of ${value}`;
+            const message = error instanceof Error ? error.message : "Unknown error occured"
+            const context = `parameter with name of ${name} and value of ${value}`
 
-            console.error(`Failed to define ${context}: ${message}`);
+            console.error(`Failed to define ${context}: ${message}`)
             return {
                 error: {
                     status: false,
                     message: `Failed to define ${context}: ${message}`,
                 },
-            };
+            }
         }
     }
 
@@ -521,32 +459,27 @@ export class Manager {
     public async defineNamespace(
         name: string,
         opts?: {
-            overwrite?: boolean;
-            ifNotExists?: boolean;
+            overwrite?: boolean
+            ifNotExists?: boolean
         }
     ): Promise<any | ErrorResponse> {
         try {
-            if (!this.surreal) throw new Error("Not connected to SurrealDB");
+            if (!this.surreal) throw new Error("Not connected to SurrealDB")
 
-            const query = `DEFINE NAMESPACE ${
-                opts && opts.overwrite ? `OVERWRITE ` : ""
-            }${opts && opts.ifNotExists ? `IF NOT EXISTS ` : ""}${name}`;
+            const query = `DEFINE NAMESPACE ${opts && opts.overwrite ? `OVERWRITE ` : ""}${opts && opts.ifNotExists ? `IF NOT EXISTS ` : ""}${name}`
 
-            return await this.surreal.query(query);
+            return await this.surreal.query(query)
         } catch (error) {
-            const message =
-                error instanceof Error
-                    ? error.message
-                    : "Unknown error occured";
-            const context = `namespace with name of ${name}`;
+            const message = error instanceof Error ? error.message : "Unknown error occured"
+            const context = `namespace with name of ${name}`
 
-            console.error(`Failed to define ${context}: ${message}`);
+            console.error(`Failed to define ${context}: ${message}`)
             return {
                 error: {
                     status: false,
                     message: `Failed to define ${context}: ${message}`,
                 },
-            };
+            }
         }
     }
 
@@ -590,32 +523,27 @@ export class Manager {
     public async defineDatabase(
         name: string,
         opts?: {
-            overwrite?: boolean;
-            ifNotExists?: boolean;
+            overwrite?: boolean
+            ifNotExists?: boolean
         }
     ): Promise<any | ErrorResponse> {
         try {
-            if (!this.surreal) throw new Error("Not connected to SurrealDB");
+            if (!this.surreal) throw new Error("Not connected to SurrealDB")
 
-            const query = `DEFINE DATABASE ${
-                opts && opts.overwrite ? `OVERWRITE ` : ""
-            }${opts && opts.ifNotExists ? `IF NOT EXISTS ` : ""}${name}`;
+            const query = `DEFINE DATABASE ${opts && opts.overwrite ? `OVERWRITE ` : ""}${opts && opts.ifNotExists ? `IF NOT EXISTS ` : ""}${name}`
 
-            return await this.surreal.query(query);
+            return await this.surreal.query(query)
         } catch (error) {
-            const message =
-                error instanceof Error
-                    ? error.message
-                    : "Unknown error occured";
-            const context = `database with name of ${name}`;
+            const message = error instanceof Error ? error.message : "Unknown error occured"
+            const context = `database with name of ${name}`
 
-            console.error(`Failed to define ${context}: ${message}`);
+            console.error(`Failed to define ${context}: ${message}`)
             return {
                 error: {
                     status: false,
                     message: `Failed to define ${context}: ${message}`,
                 },
-            };
+            }
         }
     }
 
@@ -628,12 +556,12 @@ export class Manager {
      */
     public async disconnect(): Promise<void> {
         if (this.surreal) {
-            await this.surreal.close();
-            this.surreal = null;
+            await this.surreal.close()
+            this.surreal = null
         }
     }
 
-    public async getSurreal(): Promise<Surreal | null> {
-        return this.surreal;
+    public getSurreal(): Surreal | null {
+        return this.surreal
     }
 }

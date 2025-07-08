@@ -301,5 +301,5 @@ export declare class Manager {
      * await manager.disconnect();
      */
     disconnect(): Promise<void>;
-    getSurreal(): Promise<Surreal | null>;
+    getSurreal(): Surreal | null;
 }

@@ -83,9 +83,7 @@ export class Manager {
             this.surreal = db;
         }
         catch (error) {
-            const message = error instanceof Error
-                ? error.message
-                : "Unknown error occurred";
+            const message = error instanceof Error ? error.message : "Unknown error occurred";
             console.error(`Connection failed (${mode}): ${message}`);
             return {
                 error: {
@@ -129,9 +127,7 @@ export class Manager {
             return await this.surreal.query(query);
         }
         catch (error) {
-            const message = error instanceof Error
-                ? error.message
-                : "Unknown error occurred";
+            const message = error instanceof Error ? error.message : "Unknown error occurred";
             console.error(`Failed to execute query: ${message}`);
             return {
                 error: {
@@ -176,15 +172,11 @@ export class Manager {
         try {
             if (!this.surreal)
                 throw new Error("Not connected to SurrealDB");
-            const query = user
-                ? `INFO FOR USER ${user} ON ${scope};`
-                : `INFO FOR ${scope};`;
+            const query = user ? `INFO FOR USER ${user} ON ${scope};` : `INFO FOR ${scope};`;
             return await this.surreal.query(query);
         }
         catch (error) {
-            const message = error instanceof Error
-                ? error.message
-                : "Unknown error occurred";
+            const message = error instanceof Error ? error.message : "Unknown error occurred";
             const context = user ? `${scope} user info` : `${scope} info`;
             console.error(`Failed to get ${context}: ${message}`);
             return {
@@ -238,13 +230,8 @@ export class Manager {
             this.config.database = targetDb;
         }
         catch (error) {
-            const message = error instanceof Error
-                ? error.message
-                : "Unknown error occurred";
-            const changes = [
-                ...(params.namespace ? [`namespace: ${params.namespace}`] : []),
-                ...(params.database ? [`database: ${params.database}`] : []),
-            ].join(" and ");
+            const message = error instanceof Error ? error.message : "Unknown error occurred";
+            const changes = [...(params.namespace ? [`namespace: ${params.namespace}`] : []), ...(params.database ? [`database: ${params.database}`] : [])].join(" and ");
             console.error(`Scope update failed (${changes}): ${message}`);
             return {
                 error: {
@@ -310,19 +297,11 @@ export class Manager {
             if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
                 throw new Error("Invalid username format");
             }
-            const query = `DEFINE USER ${username} ON ${scope} PASSWORD '${password}' ROLES ${role}${session && !token
-                ? ` DURATION FOR SESSION ${session.time}${session.unit}`
-                : !session && token
-                    ? ` DURATION FOR TOKEN ${token.time}${token.unit}`
-                    : session && token
-                        ? ` DURATION FOR SESSION ${session.time}${session.unit}, FOR TOKEN ${token.time}${token.unit}`
-                        : ""};`;
+            const query = `DEFINE USER ${username} ON ${scope} PASSWORD '${password}' ROLES ${role}${session && !token ? ` DURATION FOR SESSION ${session.time}${session.unit}` : !session && token ? ` DURATION FOR TOKEN ${token.time}${token.unit}` : session && token ? ` DURATION FOR SESSION ${session.time}${session.unit}, FOR TOKEN ${token.time}${token.unit}` : ""};`;
             return await this.surreal.query(query);
         }
         catch (error) {
-            const message = error instanceof Error
-                ? error.message
-                : "Unknown error occured";
+            const message = error instanceof Error ? error.message : "Unknown error occured";
             const context = `${username} with ${role} role on ${scope} scope`;
             console.error(`Failed to define ${context}: ${message}`);
             return {
@@ -377,19 +356,11 @@ export class Manager {
         try {
             if (!this.surreal)
                 throw new Error("Not connected to SurrealDB");
-            const query = `DEFINE PARAM ${opts && opts.overwrite ? `OVERWRITE ` : ""}${opts && opts.ifNotExists ? `IF NOT EXISTS ` : ""}$${name} VALUE ${casting(value)}${permissions && permissions == "NONE"
-                ? ` PERMISSIONS NONE`
-                : permissions && permissions == "FULL"
-                    ? ` PERMISSIONS FULL`
-                    : permissions && typeof permissions === "string"
-                        ? ` PERMISSIONS ${permissions}`
-                        : ""};`;
+            const query = `DEFINE PARAM ${opts && opts.overwrite ? `OVERWRITE ` : ""}${opts && opts.ifNotExists ? `IF NOT EXISTS ` : ""}$${name} VALUE ${casting(value)}${permissions && permissions == "NONE" ? ` PERMISSIONS NONE` : permissions && permissions == "FULL" ? ` PERMISSIONS FULL` : permissions && typeof permissions === "string" ? ` PERMISSIONS ${permissions}` : ""};`;
             return await this.surreal.query(query);
         }
         catch (error) {
-            const message = error instanceof Error
-                ? error.message
-                : "Unknown error occured";
+            const message = error instanceof Error ? error.message : "Unknown error occured";
             const context = `parameter with name of ${name} and value of ${value}`;
             console.error(`Failed to define ${context}: ${message}`);
             return {
@@ -442,9 +413,7 @@ export class Manager {
             return await this.surreal.query(query);
         }
         catch (error) {
-            const message = error instanceof Error
-                ? error.message
-                : "Unknown error occured";
+            const message = error instanceof Error ? error.message : "Unknown error occured";
             const context = `namespace with name of ${name}`;
             console.error(`Failed to define ${context}: ${message}`);
             return {
@@ -500,9 +469,7 @@ export class Manager {
             return await this.surreal.query(query);
         }
         catch (error) {
-            const message = error instanceof Error
-                ? error.message
-                : "Unknown error occured";
+            const message = error instanceof Error ? error.message : "Unknown error occured";
             const context = `database with name of ${name}`;
             console.error(`Failed to define ${context}: ${message}`);
             return {
@@ -526,7 +493,7 @@ export class Manager {
             this.surreal = null;
         }
     }
-    async getSurreal() {
+    getSurreal() {
         return this.surreal;
     }
 }
