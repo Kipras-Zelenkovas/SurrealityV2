@@ -23,32 +23,58 @@ import { generateDeleteQuery } from './Queries_generators/delete_generation';
  *
  * @template TTableSchema - The TypeScript interface representing the schema of the current table.
  *
- * By providing a schema interface as the generic parameter, all data operations (e.g., create, findAll, findOne) will be type-safe and autocompleted for the fields of that table, including recursive, type-safe includes for related models.
+ * This class provides a type-safe, autocompleted, and ergonomic interface for SurrealDB tables.
+ * All data operations (create, findAll, findOne, update, delete) are type-safe and autocompleted for the fields of the table, including recursive, type-safe includes for related models.
+ *
+ * ---
  *
  * @example
- * // Example of nested interfaces for a relational schema
+ * // 1. Define your TypeScript interfaces for the schema (relations supported)
  * interface Brand {
- *   id: string;         // scalar field
- *   name: string;       // scalar field
+ *   id: string;
+ *   name: string;
  * }
  *
  * interface Car {
- *   id: string;         // scalar field
- *   brand: Brand;       // relation to Brand (object field)
+ *   id: string;
+ *   brand: Brand;
  * }
  *
  * interface User {
- *   id: string;         // scalar field
- *   name: string;       // scalar field
- *   surname: string;    // scalar field
- *   cars: Car[];        // relation to Car[] (array of objects)
+ *   id: string;
+ *   name: string;
+ *   surname: string;
+ *   cars: Car[];
  * }
  *
- * // Create an ORM instance for the user table
- * const userOrm = new Surreality<User>(...);
+ * // 2. Create a SurrealDB client and Surreality ORM instance
+ * import Surreal from 'surrealdb';
+ * import { Surreality } from './Surreality';
  *
- * // Type-safe, recursive includes and fields
- * await userOrm.findAll({
+ * const surreal = new Surreal();
+ * // Provide authentication options as needed
+ * await surreal.connect('http://localhost:8000', { });
+ *
+ * const userOrm = new Surreality<User>(surreal, 'user');
+ *
+ * // 3. Define the table and fields (recommended for SCHEMAFULL tables)
+ * await userOrm.defineTable("SCHEMAFULL", {
+ *   creationMode: "IFNOTEXISTS",
+ *   type: "NORMAL",
+ *   permissions: { full: true },
+ *   timestamps: true,
+ * });
+ * await userOrm.defineField('id', 'string', { optional: false, readonly: true });
+ * await userOrm.defineField('name', 'string');
+ * await userOrm.defineField('surname', 'string');
+ * await userOrm.defineField('cars', 'array', { arrayValues: { type: 'DATATYPE', value: 'record' } });
+ *
+ * // 4. Create a new user
+ * await userOrm.create({ data: { id: 'user:alice', name: 'Alice', surname: 'Smith', cars: [] } });
+ *
+ * // 5. Query users with includes, ordering, and pagination
+ * const users = await userOrm.findAll({
+ *   fields: ['id', 'name', 'surname', 'cars'],
  *   include: [
  *     {
  *       model: 'cars',
@@ -58,9 +84,23 @@ import { generateDeleteQuery } from './Queries_generators/delete_generation';
  *       ]
  *     }
  *   ],
- *   fields: ['id', 'name', 'surname', 'cars']
+ *   order: ['-name'],
+ *   limit: 10,
+ *   offset: 0
  * });
- * // TypeScript will error if you use a field or include not in the interface
+ *
+ * // 6. Update a user
+ * await userOrm.update({ id: 'user:alice', data: { surname: 'Johnson' } });
+ *
+ * // 7. Delete a user
+ * await userOrm.delete({ id: 'user:alice' });
+ *
+ * ---
+ *
+ * - All options are type-safe and autocompleted from your schema interfaces.
+ * - Includes and fields are recursively type-checked for relations.
+ * - Use SCHEMAFULL for strict data, SCHEMALESS for flexibility or relations.
+ * - See method docs for more advanced usage and SurrealDB best practices.
  */
 export class Surreality<TTableSchema extends object = object> {
     private surreal: Surreal | null = null;
@@ -76,23 +116,25 @@ export class Surreality<TTableSchema extends object = object> {
      * Defines a table in SurrealDB with the specified base type and options.
      * This method generates and executes a `DEFINE TABLE` query, along with any additional default fields (e.g., timestamps).
      *
-     * @param { "SCHEMAFULL" | "SCHEMALESS" } base - The base type of the table.
-     * - `"SCHEMAFULL"`: The table enforces a strict schema.
-     * - `"SCHEMALESS"`: The table allows flexible schema.
-     * @param { TableOptsI } [options] - Optional configuration for the table definition.
-     * - Includes properties like `creationMode`, `type`, `relation`, `asExpr`, `changefeed`, `permissions`, and `timestamps`.
-     * - See the `TableOptsI` interface for detailed structure.
-     * @returns { Promise<any | ErrorResponse> } - A promise that resolves to:
-     * - `any`: The result of the table definition query (if successful).
-     * - `ErrorResponse`: An object containing error details if the operation fails.
+     * @param {"SCHEMAFULL" | "SCHEMALESS"} base - The base type of the table.
+     *   - "SCHEMAFULL": The table enforces a strict schema.
+     *   - "SCHEMALESS": The table allows flexible schema.
+     * @param {TableOptsI} [options] - Optional configuration for the table definition. See TableOptsI for all available options:
+     *   - creationMode: "OVERWRITE" | "IFNOTEXISTS" (table creation flags)
+     *   - type: "ANY" | "NORMAL" | "RELATION" (table type)
+     *   - relation: { from: string, to: string } (for relation tables)
+     *   - asExpr: string (AS expression for computed tables)
+     *   - changefeed: { duration: bigint, unit: DurationScope } (changefeed configuration)
+     *   - permissions: { none, full, selectExpr, createExpr, updateExpr, deleteExpr } (table-level permissions)
+     *   - timestamps: boolean | { createdAt?: boolean; updatedAt?: boolean; deletedAt?: boolean } (auto timestamp fields)
      *
-     * @throws { Error } - Throws an error if:
-     * - Not connected to SurrealDB (`this.surreal` is undefined).
-     * - The table name is not specified (`this.table` is undefined).
+     * @returns {Promise<any | ErrorResponse>} - The result of the table definition query or an error response.
+     *
+     * @throws {Error} - Throws if not connected to SurrealDB or table name is not specified.
      *
      * @example
-     * // Define a SCHEMAFULL table with timestamps and permissions
-     * await defineTable("SCHEMAFULL", {
+     * // Define a SCHEMAFULL table with all timestamps and full permissions
+     * await orm.defineTable("SCHEMAFULL", {
      *   creationMode: "IFNOTEXISTS",
      *   type: "NORMAL",
      *   permissions: { full: true },
@@ -100,13 +142,31 @@ export class Surreality<TTableSchema extends object = object> {
      * });
      *
      * @example
-     * // Define a SCHEMALESS table with custom relation and changefeed
-     * await defineTable("SCHEMALESS", {
+     * // Define a SCHEMALESS relation table with custom relation and changefeed
+     * await orm.defineTable("SCHEMALESS", {
+     *   type: "RELATION",
      *   relation: { from: "user", to: "account" },
      *   changefeed: { duration: 24n, unit: "h" },
      * });
+     *
+     * @example
+     * // Define a table with only createdAt and updatedAt timestamps
+     * await orm.defineTable("SCHEMAFULL", {
+     *   timestamps: { createdAt: true, updatedAt: true },
+     * });
+     *
+     * @example
+     * // Define a table with custom permissions
+     * await orm.defineTable("SCHEMAFULL", {
+     *   permissions: { selectExpr: "WHERE user = $auth.id" },
+     * });
+     *
+     * @note
+     *   - The `timestamps` option controls which timestamp fields are auto-created. If true, all are included; if an object, only specified fields are included.
+     *   - See TableOptsI for all available options and their types.
+     *   - SurrealDB best practice: use SCHEMAFULL for strict data, SCHEMALESS for flexibility or relations.
      */
-    private async defineTable(
+    public async defineTable(
         base: "SCHEMAFULL" | "SCHEMALESS",
         options?: TableOptsI
     ): Promise<any | ErrorResponse> {
