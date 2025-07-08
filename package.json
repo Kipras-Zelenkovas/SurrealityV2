@@ -1,8 +1,8 @@
 {
     "name": "Surreality",
-    "version": "0.0.1",
+    "version": "0.1.0",
     "author": "Prorox",
-    "license": "Apache-2.0",
+    "license": "MIT",
     "type": "module",
     "scripts": {
         "test": "node ./Test/manager.test.js",
