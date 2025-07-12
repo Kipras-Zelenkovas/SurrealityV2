@@ -80,7 +80,7 @@ const manager = new Manager(
 );
 
 await manager.connect();
-const surreal = manager.surreal; // Access the SurrealDB instance
+const surreal = manager.getSurreal(); // Access the SurrealDB instance
 
 const userOrm = new Surreality<User>(surreal, 'user');
 ```
