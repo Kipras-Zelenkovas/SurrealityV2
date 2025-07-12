@@ -86,13 +86,13 @@ export const generateFieldQuery = (table, name, type, options) => {
                     const arrayConfig = options.arrayValues;
                     if (arrayConfig.type === "DATATYPE" && arrayConfig.value) {
                         if (Array.isArray(arrayConfig.value)) {
-                            query += `array<${arrayConfig.value.join("|")}>`;
+                            query += ` array<${arrayConfig.value.join("|")}>`;
                         }
                         else {
                             // Handle record type within arrays
                             if (arrayConfig.value === "record") {
                                 if (options?.recordTable) {
-                                    query += `array<record<${options.recordTable}>>`;
+                                    query += ` array<record<${options.recordTable}>>`;
                                 }
                                 else {
                                     throw new Error(`Array field '${name}' with record type must specify a table using the recordTable option. Example: { recordTable: "table_name" }`);
