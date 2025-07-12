@@ -206,9 +206,20 @@ export class Surreality {
      * // Define a boolean field with a default value
      * await orm.defineField("isActive", DataTypes.BOOLEAN, { default: { expression: true } });
      *
-     * @example
-     * // Define an array of strings
-     * await orm.defineField("tags", DataTypes.ARRAY, { arrayValues: { type: "DATATYPE", value: DataTypes.STRING } });
+      * @example
+ * // Define an array of strings
+ * await orm.defineField("tags", DataTypes.ARRAY, { arrayValues: { type: "DATATYPE", value: DataTypes.STRING } });
+ *
+ * @example
+ * // Define a record field pointing to a specific table
+ * await orm.defineField("profile", DataTypes.RECORD, { recordTable: "profile" });
+ *
+ * @example
+ * // Define an array of records with size limit
+ * await orm.defineField("posts", DataTypes.ARRAY, {
+ *   arrayValues: { type: "DATATYPE", value: DataTypes.RECORD, size: 10 },
+ *   recordTable: "post"
+ * });
      */
     async defineField(name, type, options) {
         try {

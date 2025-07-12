@@ -10,6 +10,7 @@ import { casting } from "../Utils/casting";
  *   - default: { expression: any, always?: boolean } (default value expression)
  *   - value: { expression: any, future?: boolean } (value expression)
  *   - arrayValues: { type?: "VALUE" | "DATATYPE", value?: string | string[] | DataType | DataType[], size?: number } (array type/value config)
+ *   - recordTable: string (REQUIRED for record type, specifies the table name)
  *   - assertExpr: string (assertion expression for validation)
  *   - readonly: boolean (if true, field is read-only)
  *   - creationMode: "OVERWRITE" | "IFNOTEXISTS" (field creation flags)
@@ -37,8 +38,21 @@ import { casting } from "../Utils/casting";
  * // Field with assertion and read-only
  * const query = generateFieldQuery("users", "score", "int", { assertExpr: "value > 0", readonly: true });
  *
+ * @example
+ * // Record field pointing to specific table
+ * const query = generateFieldQuery("users", "profile", "record", { recordTable: "profile" });
+ *
+ * @example
+ * // Array of records with size limit
+ * const query = generateFieldQuery("users", "posts", "array", {
+ *   arrayValues: { type: "DATATYPE", value: "record", size: 10 },
+ *   recordTable: "post"
+ * });
+ *
  * @note
  *   - Use 'object' type for flexible fields, or array types for lists.
+ *   - Record types MUST specify a table using the recordTable option.
+ *   - Array size is specified with square brackets: array<string>[5].
  *   - See FieldOptsI for all available options and their types.
  *   - SurrealDB best practice: use optional and readonly for stricter data modeling.
  */
@@ -75,7 +89,18 @@ export const generateFieldQuery = (table, name, type, options) => {
                             query += `array<${arrayConfig.value.join("|")}>`;
                         }
                         else {
-                            query += `array<${arrayConfig.value}>`;
+                            // Handle record type within arrays
+                            if (arrayConfig.value === "record") {
+                                if (options?.recordTable) {
+                                    query += `array<record<${options.recordTable}>>`;
+                                }
+                                else {
+                                    throw new Error(`Array field '${name}' with record type must specify a table using the recordTable option. Example: { recordTable: "table_name" }`);
+                                }
+                            }
+                            else {
+                                query += `array<${arrayConfig.value}>`;
+                            }
                         }
                     }
                     else if (arrayConfig.type === "VALUE" && arrayConfig.value) {
@@ -96,6 +121,15 @@ export const generateFieldQuery = (table, name, type, options) => {
                 }
                 else {
                     query += `array<any>`;
+                }
+            }
+            else if (type === "record") {
+                // Handle record type - requires table specification
+                if (options?.recordTable) {
+                    query += `record<${options.recordTable}>`;
+                }
+                else {
+                    throw new Error(`Record field '${name}' must specify a table using the recordTable option. Example: { recordTable: "table_name" }`);
                 }
             }
             else {

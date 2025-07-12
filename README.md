@@ -97,7 +97,11 @@ await userOrm.defineTable("SCHEMAFULL", {
 await userOrm.defineField('id', 'string', { optional: false, readonly: true });
 await userOrm.defineField('name', 'string');
 await userOrm.defineField('surname', 'string');
-await userOrm.defineField('cars', 'array', { arrayValues: { type: 'DATATYPE', value: 'record' } });
+await userOrm.defineField('cars', 'array', { 
+  arrayValues: { type: 'DATATYPE', value: 'record', size: 5 },
+  recordTable: 'car' 
+});
+await userOrm.defineField('profile', 'record', { recordTable: 'profile' });
 ```
 
 ### 4. CRUD Operations

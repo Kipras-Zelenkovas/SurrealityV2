@@ -41,6 +41,7 @@ export interface FieldOptsI {
         value?: string | string[] | DataType | DataType[];
         size?: number;
     };
+    recordTable?: string;
     assertExpr?: string;
     readonly?: boolean;
     creationMode?: "OVERWRITE" | "IFNOTEXISTS";
