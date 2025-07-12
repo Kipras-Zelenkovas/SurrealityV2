@@ -1,3 +1,4 @@
+import { casting } from "../Utils/casting";
 /**
  * Generates a SurrealDB DEFINE FIELD query string for a table field.
  *
@@ -43,37 +44,119 @@
  */
 export const generateFieldQuery = (table, name, type, options) => {
     let query = `DEFINE FIELD`;
+    // Handle creation mode
     if (options?.creationMode) {
         query +=
-            options.creationMode == "OVERWRITE"
+            options.creationMode === "OVERWRITE"
                 ? ` OVERWRITE`
-                : options.creationMode == "IFNOTEXISTS"
+                : options.creationMode === "IFNOTEXISTS"
                     ? ` IF NOT EXISTS`
                     : "";
     }
-    query += ` ${name} ON TABLE ${table} `;
-    query += type == "object" ? "FLEXIBLE TYPE " : "TYPE ";
-    if (options?.optional) {
-        query += `option<`;
+    query += ` ${name} ON TABLE ${table}`;
+    // Handle flexible type for object
+    if (type === "object") {
+        query += ` FLEXIBLE TYPE`;
     }
-    if (typeof type == "string") {
-        if (Array.isArray(type)) {
-            let arrayTypes = Array.isArray(options?.arrayValues?.type)
-                ? options?.arrayValues?.type.join("|")
-                : options?.arrayValues?.type;
-            let arrayValues = Array.isArray(options?.arrayValues?.value)
-                ? options?.arrayValues?.value.join("|")
-                : options?.arrayValues?.value;
-            query += `array<${arrayTypes}`;
+    else {
+        query += ` TYPE`;
+        // Handle optional wrapper
+        if (options?.optional) {
+            query += ` option<`;
+        }
+        // Handle type definition
+        if (typeof type === "string") {
+            if (type === "array") {
+                // Handle array type with arrayValues configuration
+                if (options?.arrayValues) {
+                    const arrayConfig = options.arrayValues;
+                    if (arrayConfig.type === "DATATYPE" && arrayConfig.value) {
+                        if (Array.isArray(arrayConfig.value)) {
+                            query += `array<${arrayConfig.value.join("|")}>`;
+                        }
+                        else {
+                            query += `array<${arrayConfig.value}>`;
+                        }
+                    }
+                    else if (arrayConfig.type === "VALUE" && arrayConfig.value) {
+                        if (Array.isArray(arrayConfig.value)) {
+                            query += `array<${arrayConfig.value.map(v => casting(v)).join("|")}>`;
+                        }
+                        else {
+                            query += `array<${casting(arrayConfig.value)}>`;
+                        }
+                    }
+                    else {
+                        query += `array<any>`;
+                    }
+                    // Handle array size if specified
+                    if (arrayConfig.size !== undefined) {
+                        query += `[${arrayConfig.size}]`;
+                    }
+                }
+                else {
+                    query += `array<any>`;
+                }
+            }
+            else {
+                query += type;
+            }
+        }
+        else if (Array.isArray(type)) {
+            // Handle union types
+            query += type.join("|");
+        }
+        // Close optional wrapper
+        if (options?.optional) {
+            query += `>`;
+        }
+    }
+    // Handle default value
+    if (options?.default) {
+        query += ` DEFAULT ${casting(options.default.expression)}`;
+        if (options.default.always) {
+            query += ` ALWAYS`;
+        }
+    }
+    // Handle value expression
+    if (options?.value) {
+        query += ` VALUE ${casting(options.value.expression)}`;
+        if (options.value.future) {
+            query += ` FUTURE`;
+        }
+    }
+    // Handle assertion
+    if (options?.assertExpr) {
+        query += ` ASSERT ${options.assertExpr}`;
+    }
+    // Handle readonly
+    if (options?.readonly) {
+        query += ` READONLY`;
+    }
+    // Handle permissions
+    if (options?.permissions) {
+        const perms = options.permissions;
+        if (perms.none) {
+            query += ` PERMISSIONS NONE`;
+        }
+        else if (perms.full) {
+            query += ` PERMISSIONS FULL`;
         }
         else {
-            query += type;
+            const permissionParts = [];
+            if (perms.selectExpr)
+                permissionParts.push(`FOR SELECT ${perms.selectExpr}`);
+            if (perms.createExpr)
+                permissionParts.push(`FOR CREATE ${perms.createExpr}`);
+            if (perms.updateExpr)
+                permissionParts.push(`FOR UPDATE ${perms.updateExpr}`);
+            if (perms.deleteExpr)
+                permissionParts.push(`FOR DELETE ${perms.deleteExpr}`);
+            if (permissionParts.length > 0) {
+                query += ` PERMISSIONS ${permissionParts.join(" ")}`;
+            }
         }
     }
-    else if (Array.isArray(type)) {
-    }
-    if (options?.optional) {
-        query += `> `;
-    }
+    query += `;`;
     return query;
 };

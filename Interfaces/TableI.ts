@@ -46,7 +46,7 @@ export interface FieldOptsI {
         size?: number;
     };
     assertExpr?: string;
-    readonly: boolean;
+    readonly?: boolean;
     creationMode?: "OVERWRITE" | "IFNOTEXISTS";
     permissions?: {
         none?: boolean;
