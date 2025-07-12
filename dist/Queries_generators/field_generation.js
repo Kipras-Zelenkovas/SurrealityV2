@@ -99,20 +99,20 @@ export const generateFieldQuery = (table, name, type, options) => {
                                 }
                             }
                             else {
-                                query += `array<${arrayConfig.value}>`;
+                                query += ` array<${arrayConfig.value}>`;
                             }
                         }
                     }
                     else if (arrayConfig.type === "VALUE" && arrayConfig.value) {
                         if (Array.isArray(arrayConfig.value)) {
-                            query += `array<${arrayConfig.value.map(v => casting(v)).join("|")}>`;
+                            query += ` array<${arrayConfig.value.map(v => casting(v)).join("|")}>`;
                         }
                         else {
-                            query += `array<${casting(arrayConfig.value)}>`;
+                            query += ` array<${casting(arrayConfig.value)}>`;
                         }
                     }
                     else {
-                        query += `array<any>`;
+                        query += ` array<any>`;
                     }
                     // Handle array size if specified
                     if (arrayConfig.size !== undefined) {
@@ -120,20 +120,20 @@ export const generateFieldQuery = (table, name, type, options) => {
                     }
                 }
                 else {
-                    query += `array<any>`;
+                    query += ` array<any>`;
                 }
             }
             else if (type === "record") {
                 // Handle record type - requires table specification
                 if (options?.recordTable) {
-                    query += `record<${options.recordTable}>`;
+                    query += ` record<${options.recordTable}>`;
                 }
                 else {
                     throw new Error(`Record field '${name}' must specify a table using the recordTable option. Example: { recordTable: "table_name" }`);
                 }
             }
             else {
-                query += type;
+                query += ` ${type}`;
             }
         }
         else if (Array.isArray(type)) {
