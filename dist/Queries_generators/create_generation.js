@@ -22,7 +22,7 @@ export function generateCreateQuery(table, options) {
         Object.keys(options.data).map((key) => {
             castedData.push(`"${key}": ${casting(options.data[key])}`);
         });
-        query += `CONTENT ${castedData.join(", ")};`;
+        query += `CONTENT {${castedData.join(", ")}};`;
     }
     else {
         // SET syntax: flatten object to SET field1 = value1, ...

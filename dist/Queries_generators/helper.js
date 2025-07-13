@@ -1,4 +1,5 @@
 // Helper functions for SurrealDB query clause generation
+import { casting } from '../Utils/casting';
 /**
  * Flattens recursive, type-safe include options into SurrealDB FETCH clause paths.
  * @template T - The table schema interface.
@@ -53,14 +54,14 @@ export function generateWhereClause(where) {
     if (!where)
         return '';
     const conditions = Object.entries(where).map(([key, value]) => {
-        if (typeof value === 'string') {
-            return `${key} = '${value.replace(/'/g, "''")}'`;
+        if (typeof value === "string") {
+            return `${key} = ${casting(value.replace(/'/g, "''"))}`;
         }
-        else if (typeof value === 'boolean' || typeof value === 'number') {
-            return `${key} = ${value}`;
+        else if (typeof value === "boolean" || typeof value === "number") {
+            return `${key} = ${casting(value)}`;
         }
         else {
-            return `${key} = ${value}`;
+            return `${key} = ${casting(value)}`;
         }
     });
     return conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
