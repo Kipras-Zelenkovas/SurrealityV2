@@ -346,27 +346,22 @@ export class Surreality<TTableSchema extends object = object> {
      */
     public async findAll(
         options?: SelectOptionsI<TTableSchema>
-    ): Promise<any[] | ErrorResponse> {
+    ): Promise<unknown[] | null | ErrorResponse> {
         try {
-            if (!this.surreal) throw new Error("Not connected to SurrealDB");
-            if (!this.table) throw new Error("Table is not written");
+            if (!this.surreal) throw new Error("Not connected to SurrealDB")
+            if (!this.table) throw new Error("Table is not written")
 
             // Generate query string using generator
-            const query = generateFindAllQuery(this.table, options);
+            const query = generateFindAllQuery(this.table, options)
 
-            const result = await this.surreal.query(query);
-            if (options?.raw) return result;
-            // SurrealDB returns an array of results, each with a 'result' property
-            if (
-                Array.isArray(result) &&
-                result.length > 0 &&
-                typeof result[0] === 'object' &&
-                result[0] !== null &&
-                'result' in result[0]
-            ) {
-                return (result[0] as { result: any }).result;
+            const result = await this.surreal.query(query)
+            if (options?.raw) return result
+            // SurrealDB returns an array of results
+            if (Array.isArray(result) && Array.isArray(result[0])) {
+                return result[0] ?? null
             }
-            return result;
+            
+            return result
         } catch (error: unknown) {
             let message: string;
             if (error instanceof Error && typeof error.message === 'string') {
@@ -426,7 +421,7 @@ export class Surreality<TTableSchema extends object = object> {
      */
     public async findOne(
         options?: SelectOneOptionsI<TTableSchema>
-    ): Promise<any | null | ErrorResponse> {
+    ): Promise<unknown | null | ErrorResponse> {
         try {
             if (!this.surreal) throw new Error("Not connected to SurrealDB");
             if (!this.table) throw new Error("Table is not written");
@@ -436,17 +431,9 @@ export class Surreality<TTableSchema extends object = object> {
 
             const result = await this.surreal.query(query);
             if (options?.raw) return result;
-            // SurrealDB returns an array of results, each with a 'result' property
-            if (
-                Array.isArray(result) &&
-                result.length > 0 &&
-                typeof result[0] === 'object' &&
-                result[0] !== null &&
-                'result' in result[0] &&
-                Array.isArray((result[0] as { result: any[] }).result)
-            ) {
-                const records = (result[0] as { result: any[] }).result;
-                return records.length > 0 ? records[0] : null;
+            // SurrealDB returns an object
+            if (Array.isArray(result) && Array.isArray(result[0])) {
+                return result[0][0] ?? null
             }
             return null;
         } catch (error: unknown) {

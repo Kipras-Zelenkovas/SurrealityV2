@@ -137,76 +137,65 @@ export const casting = (opt: any): string => {
         }
 
         if (asName) {
-            const normalizedAs = asName.toLowerCase();
-
+            const normalizedAs = asName.toLowerCase()
             switch (normalizedAs) {
                 case "array":
                     if (!Array.isArray(dataInput)) {
-                        return "NONE";
+                        return "NONE"
                     }
-                    return handleArray(dataInput, dataAsInput);
-
+                    return handleArray(dataInput, dataAsInput)
                 case "object":
                     if (typeof dataInput !== "object" || dataInput === null) {
-                        return "NONE";
+                        return "NONE"
                     }
-                    return handleObject(dataInput);
-
+                    return handleObject(dataInput)
                 case "bool":
-                    const convertedValue = convertToBoolean(dataInput);
-                    return `${TYPES.BOOLEAN}${convertedValue}`;
-
+                    const convertedValue = convertToBoolean(dataInput)
+                    return `${TYPES.BOOLEAN}${convertedValue}`
                 default: {
-                    const typeKey = normalizedAs.toUpperCase();
+                    const typeKey = normalizedAs.toUpperCase()
                     if (TYPES[typeKey]) {
-                        let convertedValue: any = dataInput;
-
+                        let convertedValue = dataInput
                         switch (normalizedAs) {
                             case "int":
-                                convertedValue = convertToInt(dataInput);
-                                break;
-
+                                convertedValue = convertToInt(dataInput)
+                                break
                             case "float":
-                                convertedValue = parseFloat(dataInput) || 0;
-                                break;
-
+                                convertedValue = parseFloat(dataInput) || 0
+                                break
                             case "number":
-                                convertedValue = Number(dataInput) || 0;
-                                break;
+                                convertedValue = Number(dataInput) || 0
+                                break
                         }
-
-                        return `${TYPES[typeKey]}${convertedValue}`;
+                        return `${TYPES[typeKey]}"${convertedValue}"`
                     }
-                    return "NONE";
+                    return "NONE"
                 }
             }
         }
-
+        
         if (Array.isArray(dataInput)) {
-            return handleArray(dataInput, dataAsInput);
+            return handleArray(dataInput, dataAsInput)
+        }
+
+        if (isRecord(dataInput)) {
+            return `${TYPES.RECORD}${dataInput}`
         }
 
         switch (typeof dataInput) {
             case "boolean":
-                return `${TYPES.BOOLEAN}${dataInput}`;
-
+                return `${TYPES.BOOLEAN}${dataInput}`
             case "string":
-                if (isParameter(dataInput)) return dataInput;
-                if (isDateTime(dataInput))
-                    return `${TYPES.DATETIME}${dataInput}`;
-                if (isRecord(dataInput)) return `${TYPES.RECORD}${dataInput}`;
-                return `${TYPES.STRING}${dataInput}`;
-
+                if (isParameter(dataInput)) return dataInput
+                if (isDateTime(dataInput)) return `${TYPES.DATETIME}"${dataInput}"`
+                if (isRecord(dataInput)) return `${TYPES.RECORD}${dataInput}`
+                return `${TYPES.STRING}"${dataInput}"`
             case "number":
-                return Number.isInteger(dataInput)
-                    ? `${TYPES.INT}${dataInput}`
-                    : `${TYPES.FLOAT}${dataInput}`;
-
+                return Number.isInteger(dataInput) ? `${TYPES.INT}${dataInput}` : `${TYPES.FLOAT}${dataInput}`
             case "object":
-                return handleObject(dataInput);
-
+                return handleObject(dataInput)
             default:
-                return "NONE";
+                return "NONE"
         }
     } catch (err) {
         console.error("Failed to cast:", err);

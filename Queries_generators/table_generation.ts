@@ -154,28 +154,28 @@ export const additionalFields = (
 ): string[] => {
     if (timestamps === undefined || timestamps === true) {
         return [
-            `DEFINE FIELD timestamps.createdAt ON TABLE ${table} TYPE datetime VALUE time::now() READONLY;`,
-            `DEFINE FIELD timestamps.updatedAt ON TABLE ${table} TYPE datetime VALUE time::now();`,
-            `DEFINE FIELD timestamps.deletedAt ON TABLE ${table} TYPE option<datetime>;`,
+            `DEFINE FIELD IF NOT EXISTS timestamps.createdAt ON TABLE ${table} TYPE datetime VALUE time::now() READONLY;`,
+            `DEFINE FIELD IF NOT EXISTS timestamps.updatedAt ON TABLE ${table} TYPE datetime VALUE time::now();`,
+            `DEFINE FIELD IF NOT EXISTS timestamps.deletedAt ON TABLE ${table} TYPE option<datetime>;`,
         ];
     } else if (typeof timestamps == "object") {
         let tempFields: string[] = [];
 
         if (timestamps.createdAt === true) {
             tempFields.push(
-                `DEFINE FIELD timestamps.createdAt ON TABLE ${table} TYPE datetime VALUE time::now() READONLY;`
+                `DEFINE FIELD IF NOT EXISTS timestamps.createdAt ON TABLE ${table} TYPE datetime VALUE time::now() READONLY;`
             );
         }
 
         if (timestamps.updatedAt === true) {
             tempFields.push(
-                `DEFINE FIELD timestamps.updatedAt ON TABLE ${table} TYPE datetime VALUE time::now();`
+                `DEFINE FIELD IF NOT EXISTS timestamps.updatedAt ON TABLE ${table} TYPE datetime VALUE time::now();`
             );
         }
 
         if (timestamps.updatedAt === true) {
             tempFields.push(
-                `DEFINE FIELD timestamps.deletedAt ON TABLE ${table} TYPE option<datetime>;`
+                `DEFINE FIELD IF NOT EXISTS timestamps.deletedAt ON TABLE ${table} TYPE option<datetime>;`
             );
         }
 
