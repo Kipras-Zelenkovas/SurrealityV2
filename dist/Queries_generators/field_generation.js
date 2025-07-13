@@ -36,7 +36,7 @@ import { casting } from "../Utils/casting";
  *
  * @example
  * // Field with assertion and read-only
- * const query = generateFieldQuery("users", "score", "int", { assertExpr: "value > 0", readonly: true });
+ * const query = generateFieldQuery("users", "score", "int", { assertExpr: "$value > 0", readonly: true });
  *
  * @example
  * // Record field pointing to specific table

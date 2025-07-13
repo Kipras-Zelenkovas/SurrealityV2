@@ -149,7 +149,7 @@ export const casting = (opt) => {
                                 convertedValue = Number(dataInput) || 0;
                                 break;
                         }
-                        return `${TYPES[typeKey]}${convertedValue}`;
+                        return `${TYPES[typeKey]}"${convertedValue}"`;
                     }
                     return "NONE";
                 }
@@ -158,6 +158,9 @@ export const casting = (opt) => {
         if (Array.isArray(dataInput)) {
             return handleArray(dataInput, dataAsInput);
         }
+        if (isRecord(dataInput)) {
+            return `${TYPES.RECORD}${dataInput}`;
+        }
         switch (typeof dataInput) {
             case "boolean":
                 return `${TYPES.BOOLEAN}${dataInput}`;
@@ -165,14 +168,12 @@ export const casting = (opt) => {
                 if (isParameter(dataInput))
                     return dataInput;
                 if (isDateTime(dataInput))
-                    return `${TYPES.DATETIME}${dataInput}`;
+                    return `${TYPES.DATETIME}"${dataInput}"`;
                 if (isRecord(dataInput))
                     return `${TYPES.RECORD}${dataInput}`;
-                return `${TYPES.STRING}${dataInput}`;
+                return `${TYPES.STRING}"${dataInput}"`;
             case "number":
-                return Number.isInteger(dataInput)
-                    ? `${TYPES.INT}${dataInput}`
-                    : `${TYPES.FLOAT}${dataInput}`;
+                return Number.isInteger(dataInput) ? `${TYPES.INT}${dataInput}` : `${TYPES.FLOAT}${dataInput}`;
             case "object":
                 return handleObject(dataInput);
             default:

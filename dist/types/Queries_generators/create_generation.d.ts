@@ -1,4 +1,4 @@
-import { CreateOptionsI } from '../Interfaces/CreateOptionsI';
+import { CreateOptionsI } from "../Interfaces/CreateOptionsI";
 /**
  * Generates a SurrealDB CREATE query string for inserting records.
  *

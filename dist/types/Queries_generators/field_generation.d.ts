@@ -37,7 +37,7 @@ import { DataType } from "../Utils/DataTypes";
  *
  * @example
  * // Field with assertion and read-only
- * const query = generateFieldQuery("users", "score", "int", { assertExpr: "value > 0", readonly: true });
+ * const query = generateFieldQuery("users", "score", "int", { assertExpr: "$value > 0", readonly: true });
  *
  * @example
  * // Record field pointing to specific table

@@ -318,13 +318,9 @@ export class Surreality {
             const result = await this.surreal.query(query);
             if (options?.raw)
                 return result;
-            // SurrealDB returns an array of results, each with a 'result' property
-            if (Array.isArray(result) &&
-                result.length > 0 &&
-                typeof result[0] === 'object' &&
-                result[0] !== null &&
-                'result' in result[0]) {
-                return result[0].result;
+            // SurrealDB returns an array of results
+            if (Array.isArray(result) && Array.isArray(result[0])) {
+                return result[0] ?? null;
             }
             return result;
         }
@@ -395,15 +391,9 @@ export class Surreality {
             const result = await this.surreal.query(query);
             if (options?.raw)
                 return result;
-            // SurrealDB returns an array of results, each with a 'result' property
-            if (Array.isArray(result) &&
-                result.length > 0 &&
-                typeof result[0] === 'object' &&
-                result[0] !== null &&
-                'result' in result[0] &&
-                Array.isArray(result[0].result)) {
-                const records = result[0].result;
-                return records.length > 0 ? records[0] : null;
+            // SurrealDB returns an object
+            if (Array.isArray(result) && Array.isArray(result[0])) {
+                return result[0][0] ?? null;
             }
             return null;
         }
