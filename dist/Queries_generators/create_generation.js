@@ -1,4 +1,4 @@
-import { casting } from "../Utils/casting";
+import { casting } from "../Utils/casting.js";
 /**
  * Generates a SurrealDB CREATE query string for inserting records.
  *

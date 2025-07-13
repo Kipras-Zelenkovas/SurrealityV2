@@ -1,4 +1,4 @@
-import { SelectOneOptionsI } from '../Interfaces/SelectOneOptionsI';
+import { SelectOneOptionsI } from '../Interfaces/SelectOneOptionsI.js';
 /**
  * Generates a SurrealDB SELECT query string for findOne/select single record operations.
  *

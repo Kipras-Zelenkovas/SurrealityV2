@@ -1,5 +1,5 @@
 import Surreal from "surrealdb";
-import { casting } from "./Utils/casting";
+import { casting } from "./Utils/casting.js";
 /**
  * Manager class for interacting with SurrealDB.
  * Provides methods to connect, disconnect, and retrieve information from the database.

@@ -1,10 +1,10 @@
-import { additionalFields, generateTableQuery, } from "./Queries_generators/table_generation";
-import { generateFieldQuery } from "./Queries_generators/field_generation";
-import { generateFindAllQuery } from './Queries_generators/find_all_generation';
-import { generateFindOneQuery } from './Queries_generators/find_one_generation';
-import { generateCreateQuery } from './Queries_generators/create_generation';
-import { generateUpdateQuery } from './Queries_generators/update_generation';
-import { generateDeleteQuery } from './Queries_generators/delete_generation';
+import { additionalFields, generateTableQuery } from "./Queries_generators/table_generation.js";
+import { generateFieldQuery } from "./Queries_generators/field_generation.js";
+import { generateFindAllQuery } from "./Queries_generators/find_all_generation.js";
+import { generateFindOneQuery } from "./Queries_generators/find_one_generation.js";
+import { generateCreateQuery } from "./Queries_generators/create_generation.js";
+import { generateUpdateQuery } from "./Queries_generators/update_generation.js";
+import { generateDeleteQuery } from "./Queries_generators/delete_generation.js";
 /**
  * Surreality ORM class for SurrealDB.
  *
@@ -36,7 +36,7 @@ import { generateDeleteQuery } from './Queries_generators/delete_generation';
  *
  * // 2. Create a SurrealDB client and Surreality ORM instance
  * import Surreal from 'surrealdb';
- * import { Surreality } from './Surreality';
+ * import { Surreality } from './Surreality.js';
  *
  * const surreal = new Surreal();
  * // Provide authentication options as needed
@@ -164,9 +164,7 @@ export class Surreality {
             }
         }
         catch (error) {
-            const message = error instanceof Error
-                ? error.message
-                : "Unknown error occured";
+            const message = error instanceof Error ? error.message : "Unknown error occured";
             const context = `table with name ${this.table}`;
             console.error(`Failed to define ${context}: ${message}`);
             return {
@@ -206,20 +204,20 @@ export class Surreality {
      * // Define a boolean field with a default value
      * await orm.defineField("isActive", DataTypes.BOOLEAN, { default: { expression: true } });
      *
-      * @example
- * // Define an array of strings
- * await orm.defineField("tags", DataTypes.ARRAY, { arrayValues: { type: "DATATYPE", value: DataTypes.STRING } });
- *
- * @example
- * // Define a record field pointing to a specific table
- * await orm.defineField("profile", DataTypes.RECORD, { recordTable: "profile" });
- *
- * @example
- * // Define an array of records with size limit
- * await orm.defineField("posts", DataTypes.ARRAY, {
- *   arrayValues: { type: "DATATYPE", value: DataTypes.RECORD, size: 10 },
- *   recordTable: "post"
- * });
+     * @example
+     * // Define an array of strings
+     * await orm.defineField("tags", DataTypes.ARRAY, { arrayValues: { type: "DATATYPE", value: DataTypes.STRING } });
+     *
+     * @example
+     * // Define a record field pointing to a specific table
+     * await orm.defineField("profile", DataTypes.RECORD, { recordTable: "profile" });
+     *
+     * @example
+     * // Define an array of records with size limit
+     * await orm.defineField("posts", DataTypes.ARRAY, {
+     *   arrayValues: { type: "DATATYPE", value: DataTypes.RECORD, size: 10 },
+     *   recordTable: "post"
+     * });
      */
     async defineField(name, type, options) {
         try {
@@ -231,9 +229,7 @@ export class Surreality {
             await this.surreal.query(fieldQuery);
         }
         catch (error) {
-            const message = error instanceof Error
-                ? error.message
-                : "Unknown error occured";
+            const message = error instanceof Error ? error.message : "Unknown error occured";
             const context = `field with name ${name}`;
             console.error(`Failed to define ${context}: ${message}`);
             return {
@@ -326,7 +322,7 @@ export class Surreality {
         }
         catch (error) {
             let message;
-            if (error instanceof Error && typeof error.message === 'string') {
+            if (error instanceof Error && typeof error.message === "string") {
                 message = error.message;
             }
             else {
@@ -399,7 +395,7 @@ export class Surreality {
         }
         catch (error) {
             let message;
-            if (error instanceof Error && typeof error.message === 'string') {
+            if (error instanceof Error && typeof error.message === "string") {
                 message = error.message;
             }
             else {
@@ -440,18 +436,14 @@ export class Surreality {
             const result = await this.surreal.query(query);
             if (options.raw)
                 return result;
-            if (Array.isArray(result) &&
-                result.length > 0 &&
-                typeof result[0] === 'object' &&
-                result[0] !== null &&
-                'result' in result[0]) {
-                return result[0].result;
+            if (Array.isArray(result)) {
+                return result[0];
             }
             return result;
         }
         catch (error) {
             let message;
-            if (error instanceof Error && typeof error.message === 'string') {
+            if (error instanceof Error && typeof error.message === "string") {
                 message = error.message;
             }
             else {
@@ -501,18 +493,14 @@ export class Surreality {
             const result = await this.surreal.query(query);
             if (options.raw)
                 return result;
-            if (Array.isArray(result) &&
-                result.length > 0 &&
-                typeof result[0] === 'object' &&
-                result[0] !== null &&
-                'result' in result[0]) {
-                return result[0].result;
+            if (Array.isArray(result)) {
+                return result[0];
             }
             return result;
         }
         catch (error) {
             let message;
-            if (error instanceof Error && typeof error.message === 'string') {
+            if (error instanceof Error && typeof error.message === "string") {
                 message = error.message;
             }
             else {
@@ -558,18 +546,14 @@ export class Surreality {
             const result = await this.surreal.query(query);
             if (options.raw)
                 return result;
-            if (Array.isArray(result) &&
-                result.length > 0 &&
-                typeof result[0] === 'object' &&
-                result[0] !== null &&
-                'result' in result[0]) {
-                return result[0].result;
+            if (Array.isArray(result)) {
+                return result[0];
             }
             return result;
         }
         catch (error) {
             let message;
-            if (error instanceof Error && typeof error.message === 'string') {
+            if (error instanceof Error && typeof error.message === "string") {
                 message = error.message;
             }
             else {
@@ -586,5 +570,5 @@ export class Surreality {
         }
     }
 }
-export { Manager } from './Manager';
-export { DataTypes } from './Utils/DataTypes';
+export { Manager } from "./Manager.js";
+export { DataTypes } from "./Utils/DataTypes.js";

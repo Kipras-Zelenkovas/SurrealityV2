@@ -1,6 +1,6 @@
-import { UpdateOptionsI } from "../Interfaces/UpdateOptionsI"
-import { casting } from "../Utils/casting"
-import { generateWhereClause } from "./helper"
+import { UpdateOptionsI } from "../Interfaces/UpdateOptionsI.js"
+import { casting } from "../Utils/casting.js"
+import { generateWhereClause } from "./helper.js"
 
 /**
  * Generates a SurrealDB UPDATE query string for updating records.
@@ -16,7 +16,7 @@ export function generateUpdateQuery<T extends object>(table: string, options: Up
     }
     let target = table
     if (options.id) {
-        target = `${table}:${options.id}`
+        target = `${options.id}`
     }
     let query = `UPDATE ${target} `
     // Use CONTENT by default unless content: false is explicitly set
@@ -41,6 +41,6 @@ export function generateUpdateQuery<T extends object>(table: string, options: Up
         const whereClause = generateWhereClause(options.where)
         if (whereClause) query += " " + whereClause
     }
-    query += ";"
+    query += ""
     return query
 }

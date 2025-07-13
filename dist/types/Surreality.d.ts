@@ -1,12 +1,12 @@
 import Surreal from "surrealdb";
-import { ErrorResponse } from "./Interfaces/GeneralI";
-import { FieldOptsI, TableOptsI } from "./Interfaces/TableI";
-import { SelectOptionsI } from './Interfaces/SelectOptionsI';
-import { DataType } from "./Utils/DataTypes";
-import { SelectOneOptionsI } from './Interfaces/SelectOneOptionsI';
-import { CreateOptionsI } from './Interfaces/CreateOptionsI';
-import { UpdateOptionsI } from './Interfaces/UpdateOptionsI';
-import { DeleteOptionsI } from './Interfaces/DeleteOptionsI';
+import { ErrorResponse } from "./Interfaces/GeneralI.js";
+import { FieldOptsI, TableOptsI } from "./Interfaces/TableI.js";
+import { SelectOptionsI } from "./Interfaces/SelectOptionsI.js";
+import { DataType } from "./Utils/DataTypes.js";
+import { SelectOneOptionsI } from "./Interfaces/SelectOneOptionsI.js";
+import { CreateOptionsI } from "./Interfaces/CreateOptionsI.js";
+import { UpdateOptionsI } from "./Interfaces/UpdateOptionsI.js";
+import { DeleteOptionsI } from "./Interfaces/DeleteOptionsI.js";
 /**
  * Surreality ORM class for SurrealDB.
  *
@@ -38,7 +38,7 @@ import { DeleteOptionsI } from './Interfaces/DeleteOptionsI';
  *
  * // 2. Create a SurrealDB client and Surreality ORM instance
  * import Surreal from 'surrealdb';
- * import { Surreality } from './Surreality';
+ * import { Surreality } from './Surreality.js';
  *
  * const surreal = new Surreal();
  * // Provide authentication options as needed
@@ -179,20 +179,20 @@ export declare class Surreality<TTableSchema extends object = object> {
      * // Define a boolean field with a default value
      * await orm.defineField("isActive", DataTypes.BOOLEAN, { default: { expression: true } });
      *
-      * @example
- * // Define an array of strings
- * await orm.defineField("tags", DataTypes.ARRAY, { arrayValues: { type: "DATATYPE", value: DataTypes.STRING } });
- *
- * @example
- * // Define a record field pointing to a specific table
- * await orm.defineField("profile", DataTypes.RECORD, { recordTable: "profile" });
- *
- * @example
- * // Define an array of records with size limit
- * await orm.defineField("posts", DataTypes.ARRAY, {
- *   arrayValues: { type: "DATATYPE", value: DataTypes.RECORD, size: 10 },
- *   recordTable: "post"
- * });
+     * @example
+     * // Define an array of strings
+     * await orm.defineField("tags", DataTypes.ARRAY, { arrayValues: { type: "DATATYPE", value: DataTypes.STRING } });
+     *
+     * @example
+     * // Define a record field pointing to a specific table
+     * await orm.defineField("profile", DataTypes.RECORD, { recordTable: "profile" });
+     *
+     * @example
+     * // Define an array of records with size limit
+     * await orm.defineField("posts", DataTypes.ARRAY, {
+     *   arrayValues: { type: "DATATYPE", value: DataTypes.RECORD, size: 10 },
+     *   recordTable: "post"
+     * });
      */
     defineField(name: string, type: DataType | DataType[], options?: FieldOptsI): Promise<any | ErrorResponse>;
     /**
@@ -361,5 +361,5 @@ export declare class Surreality<TTableSchema extends object = object> {
      */
     delete(options: DeleteOptionsI<TTableSchema>): Promise<any | ErrorResponse>;
 }
-export { Manager } from './Manager';
-export { DataTypes, DataType } from './Utils/DataTypes';
+export { Manager } from "./Manager.js";
+export { DataTypes, DataType } from "./Utils/DataTypes.js";

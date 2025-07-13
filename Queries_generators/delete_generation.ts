@@ -1,5 +1,5 @@
-import { DeleteOptionsI } from '../Interfaces/DeleteOptionsI';
-import { generateWhereClause } from './helper';
+import { DeleteOptionsI } from '../Interfaces/DeleteOptionsI.js';
+import { generateWhereClause } from './helper.js';
 
 /**
  * Generates a SurrealDB DELETE query string for deleting records.

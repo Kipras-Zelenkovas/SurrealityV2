@@ -1,4 +1,4 @@
-import { TableOptsI } from "../Interfaces/TableI";
+import { TableOptsI } from "../Interfaces/TableI.js";
 /**
  * Generates a table definition query string for SurrealDB.
  *

@@ -1,4 +1,4 @@
-import { DeleteOptionsI } from '../Interfaces/DeleteOptionsI';
+import { DeleteOptionsI } from '../Interfaces/DeleteOptionsI.js';
 /**
  * Generates a SurrealDB DELETE query string for deleting records.
  *

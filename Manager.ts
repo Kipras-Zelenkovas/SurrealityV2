@@ -1,7 +1,7 @@
 import Surreal, { Duration, toSurrealqlString } from "surrealdb"
-import { RoleScope, SurrealScope, PermissionScope } from "./Interfaces/ManagerI"
-import { SurrealConfig, ErrorResponse, DurationScope } from "./Interfaces/GeneralI"
-import { casting } from "./Utils/casting"
+import { RoleScope, SurrealScope, PermissionScope } from "./Interfaces/ManagerI.js"
+import { SurrealConfig, ErrorResponse, DurationScope } from "./Interfaces/GeneralI.js"
+import { casting } from "./Utils/casting.js"
 
 /**
  * Manager class for interacting with SurrealDB.

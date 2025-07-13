@@ -1,4 +1,4 @@
-import { collectIncludeFields, generateFetchClause, generateWhereClause, generateOrderByClause, generateLimitOffsetClause } from './helper';
+import { collectIncludeFields, generateFetchClause, generateWhereClause, generateOrderByClause, generateLimitOffsetClause } from './helper.js';
 /**
  * Generates a SurrealDB SELECT query string for findAll/select operations.
  *

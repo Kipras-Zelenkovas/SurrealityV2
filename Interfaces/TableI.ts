@@ -1,5 +1,5 @@
-import { DataType } from "../Utils/DataTypes";
-import { DurationScope } from "./GeneralI";
+import { DataType } from "../Utils/DataTypes.js";
+import { DurationScope } from "./GeneralI.js";
 
 export interface TableOptsI {
     creationMode?: "OVERWRITE" | "IFNOTEXISTS";

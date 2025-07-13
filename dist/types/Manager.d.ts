@@ -1,6 +1,6 @@
 import Surreal from "surrealdb";
-import { RoleScope, SurrealScope, PermissionScope } from "./Interfaces/ManagerI";
-import { SurrealConfig, ErrorResponse, DurationScope } from "./Interfaces/GeneralI";
+import { RoleScope, SurrealScope, PermissionScope } from "./Interfaces/ManagerI.js";
+import { SurrealConfig, ErrorResponse, DurationScope } from "./Interfaces/GeneralI.js";
 /**
  * Manager class for interacting with SurrealDB.
  * Provides methods to connect, disconnect, and retrieve information from the database.

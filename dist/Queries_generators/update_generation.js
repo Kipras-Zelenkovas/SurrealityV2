@@ -1,5 +1,5 @@
-import { casting } from "../Utils/casting";
-import { generateWhereClause } from "./helper";
+import { casting } from "../Utils/casting.js";
+import { generateWhereClause } from "./helper.js";
 /**
  * Generates a SurrealDB UPDATE query string for updating records.
  *
@@ -14,7 +14,7 @@ export function generateUpdateQuery(table, options) {
     }
     let target = table;
     if (options.id) {
-        target = `${table}:${options.id}`;
+        target = `${options.id}`;
     }
     let query = `UPDATE ${target} `;
     // Use CONTENT by default unless content: false is explicitly set
@@ -39,6 +39,6 @@ export function generateUpdateQuery(table, options) {
         if (whereClause)
             query += " " + whereClause;
     }
-    query += ";";
+    query += "";
     return query;
 }

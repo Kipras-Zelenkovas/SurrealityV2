@@ -3,7 +3,7 @@
  *
  * @template T - The table schema interface. Enables type-safe autocomplete for all fields in the current table, while remaining flexible for advanced use cases.
  */
-import { RecursiveIncludeOption } from "./IncludeOption";
+import { RecursiveIncludeOption } from "./IncludeOption.js";
 export interface SelectOneOptionsI<T extends object = object> {
     fields?: Array<keyof T>;
     /**

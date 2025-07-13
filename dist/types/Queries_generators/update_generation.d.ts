@@ -1,4 +1,4 @@
-import { UpdateOptionsI } from "../Interfaces/UpdateOptionsI";
+import { UpdateOptionsI } from "../Interfaces/UpdateOptionsI.js";
 /**
  * Generates a SurrealDB UPDATE query string for updating records.
  *

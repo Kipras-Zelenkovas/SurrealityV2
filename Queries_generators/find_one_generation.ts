@@ -1,5 +1,5 @@
-import { SelectOneOptionsI } from '../Interfaces/SelectOneOptionsI';
-import { collectIncludeFields, generateFetchClause, generateWhereClause } from './helper';
+import { SelectOneOptionsI } from '../Interfaces/SelectOneOptionsI.js';
+import { collectIncludeFields, generateFetchClause, generateWhereClause } from './helper.js';
 
 /**
  * Generates a SurrealDB SELECT query string for findOne/select single record operations.

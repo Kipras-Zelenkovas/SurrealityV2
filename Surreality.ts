@@ -1,22 +1,19 @@
-import Surreal from "surrealdb";
-import { ErrorResponse } from "./Interfaces/GeneralI";
-import { FieldOptsI, TableOptsI } from "./Interfaces/TableI";
-import { SelectOptionsI } from './Interfaces/SelectOptionsI';
-import {
-    additionalFields,
-    generateTableQuery,
-} from "./Queries_generators/table_generation";
-import { DataType } from "./Utils/DataTypes";
-import { generateFieldQuery } from "./Queries_generators/field_generation";
-import { generateFindAllQuery } from './Queries_generators/find_all_generation';
-import { generateFindOneQuery } from './Queries_generators/find_one_generation';
-import { SelectOneOptionsI } from './Interfaces/SelectOneOptionsI';
-import { CreateOptionsI } from './Interfaces/CreateOptionsI';
-import { generateCreateQuery } from './Queries_generators/create_generation';
-import { UpdateOptionsI } from './Interfaces/UpdateOptionsI';
-import { generateUpdateQuery } from './Queries_generators/update_generation';
-import { DeleteOptionsI } from './Interfaces/DeleteOptionsI';
-import { generateDeleteQuery } from './Queries_generators/delete_generation';
+import Surreal from "surrealdb"
+import { ErrorResponse } from "./Interfaces/GeneralI.js"
+import { FieldOptsI, TableOptsI } from "./Interfaces/TableI.js"
+import { SelectOptionsI } from "./Interfaces/SelectOptionsI.js"
+import { additionalFields, generateTableQuery } from "./Queries_generators/table_generation.js"
+import { DataType } from "./Utils/DataTypes.js"
+import { generateFieldQuery } from "./Queries_generators/field_generation.js"
+import { generateFindAllQuery } from "./Queries_generators/find_all_generation.js"
+import { generateFindOneQuery } from "./Queries_generators/find_one_generation.js"
+import { SelectOneOptionsI } from "./Interfaces/SelectOneOptionsI.js"
+import { CreateOptionsI } from "./Interfaces/CreateOptionsI.js"
+import { generateCreateQuery } from "./Queries_generators/create_generation.js"
+import { UpdateOptionsI } from "./Interfaces/UpdateOptionsI.js"
+import { generateUpdateQuery } from "./Queries_generators/update_generation.js"
+import { DeleteOptionsI } from "./Interfaces/DeleteOptionsI.js"
+import { generateDeleteQuery } from "./Queries_generators/delete_generation.js"
 
 /**
  * Surreality ORM class for SurrealDB.
@@ -49,7 +46,7 @@ import { generateDeleteQuery } from './Queries_generators/delete_generation';
  *
  * // 2. Create a SurrealDB client and Surreality ORM instance
  * import Surreal from 'surrealdb';
- * import { Surreality } from './Surreality';
+ * import { Surreality } from './Surreality.js';
  *
  * const surreal = new Surreal();
  * // Provide authentication options as needed
@@ -103,13 +100,13 @@ import { generateDeleteQuery } from './Queries_generators/delete_generation';
  * - See method docs for more advanced usage and SurrealDB best practices.
  */
 export class Surreality<TTableSchema extends object = object> {
-    private surreal: Surreal | null = null;
+    private surreal: Surreal | null = null
 
-    public table: string | null = null;
+    public table: string | null = null
 
     constructor(surreal: Surreal, table: string) {
-        this.surreal = surreal;
-        this.table = table;
+        this.surreal = surreal
+        this.table = table
     }
 
     /**
@@ -166,40 +163,31 @@ export class Surreality<TTableSchema extends object = object> {
      *   - See TableOptsI for all available options and their types.
      *   - SurrealDB best practice: use SCHEMAFULL for strict data, SCHEMALESS for flexibility or relations.
      */
-    public async defineTable(
-        base: "SCHEMAFULL" | "SCHEMALESS",
-        options?: TableOptsI
-    ): Promise<any | ErrorResponse> {
+    public async defineTable(base: "SCHEMAFULL" | "SCHEMALESS", options?: TableOptsI): Promise<any | ErrorResponse> {
         try {
-            if (!this.surreal) throw new Error("Not connected to SurrealDB");
-            if (!this.table) throw new Error("Table is not written");
+            if (!this.surreal) throw new Error("Not connected to SurrealDB")
+            if (!this.table) throw new Error("Table is not written")
 
-            const tableQuery = generateTableQuery(this.table, base, options);
+            const tableQuery = generateTableQuery(this.table, base, options)
 
-            let defaultFields: string[] = additionalFields(
-                this.table,
-                options?.timestamps
-            );
+            let defaultFields: string[] = additionalFields(this.table, options?.timestamps)
 
-            await this.surreal.query(tableQuery);
+            await this.surreal.query(tableQuery)
 
             for (let query of defaultFields) {
-                await this.surreal.query(query);
+                await this.surreal.query(query)
             }
         } catch (error) {
-            const message =
-                error instanceof Error
-                    ? error.message
-                    : "Unknown error occured";
-            const context = `table with name ${this.table}`;
+            const message = error instanceof Error ? error.message : "Unknown error occured"
+            const context = `table with name ${this.table}`
 
-            console.error(`Failed to define ${context}: ${message}`);
+            console.error(`Failed to define ${context}: ${message}`)
             return {
                 error: {
                     status: false,
                     message: `Failed to define ${context}: ${message}`,
                 },
-            };
+            }
         }
     }
 
@@ -232,52 +220,40 @@ export class Surreality<TTableSchema extends object = object> {
      * // Define a boolean field with a default value
      * await orm.defineField("isActive", DataTypes.BOOLEAN, { default: { expression: true } });
      *
-      * @example
- * // Define an array of strings
- * await orm.defineField("tags", DataTypes.ARRAY, { arrayValues: { type: "DATATYPE", value: DataTypes.STRING } });
- *
- * @example
- * // Define a record field pointing to a specific table
- * await orm.defineField("profile", DataTypes.RECORD, { recordTable: "profile" });
- *
- * @example
- * // Define an array of records with size limit
- * await orm.defineField("posts", DataTypes.ARRAY, { 
- *   arrayValues: { type: "DATATYPE", value: DataTypes.RECORD, size: 10 },
- *   recordTable: "post" 
- * });
+     * @example
+     * // Define an array of strings
+     * await orm.defineField("tags", DataTypes.ARRAY, { arrayValues: { type: "DATATYPE", value: DataTypes.STRING } });
+     *
+     * @example
+     * // Define a record field pointing to a specific table
+     * await orm.defineField("profile", DataTypes.RECORD, { recordTable: "profile" });
+     *
+     * @example
+     * // Define an array of records with size limit
+     * await orm.defineField("posts", DataTypes.ARRAY, {
+     *   arrayValues: { type: "DATATYPE", value: DataTypes.RECORD, size: 10 },
+     *   recordTable: "post"
+     * });
      */
-    public async defineField(
-        name: string,
-        type: DataType | DataType[],
-        options?: FieldOptsI
-    ): Promise<any | ErrorResponse> {
+    public async defineField(name: string, type: DataType | DataType[], options?: FieldOptsI): Promise<any | ErrorResponse> {
         try {
-            if (!this.surreal) throw new Error("Not connected to SurrealDB");
-            if (!this.table) throw new Error("Table is not written");
+            if (!this.surreal) throw new Error("Not connected to SurrealDB")
+            if (!this.table) throw new Error("Table is not written")
 
-            const fieldQuery = generateFieldQuery(
-                this.table,
-                name,
-                type,
-                options
-            );
+            const fieldQuery = generateFieldQuery(this.table, name, type, options)
 
-            await this.surreal.query(fieldQuery);
+            await this.surreal.query(fieldQuery)
         } catch (error) {
-            const message =
-                error instanceof Error
-                    ? error.message
-                    : "Unknown error occured";
-            const context = `field with name ${name}`;
+            const message = error instanceof Error ? error.message : "Unknown error occured"
+            const context = `field with name ${name}`
 
-            console.error(`Failed to define ${context}: ${message}`);
+            console.error(`Failed to define ${context}: ${message}`)
             return {
                 error: {
                     status: false,
                     message: `Failed to define ${context}: ${message}`,
                 },
-            };
+            }
         }
     }
 
@@ -344,9 +320,7 @@ export class Surreality<TTableSchema extends object = object> {
      *   - The 'where' option is type-safe and flexible.
      *   - All options are autocompleted and type-checked based on your interface structure.
      */
-    public async findAll(
-        options?: SelectOptionsI<TTableSchema>
-    ): Promise<unknown[] | null | ErrorResponse> {
+    public async findAll(options?: SelectOptionsI<TTableSchema>): Promise<unknown[] | null | ErrorResponse> {
         try {
             if (!this.surreal) throw new Error("Not connected to SurrealDB")
             if (!this.table) throw new Error("Table is not written")
@@ -360,24 +334,24 @@ export class Surreality<TTableSchema extends object = object> {
             if (Array.isArray(result) && Array.isArray(result[0])) {
                 return result[0] ?? null
             }
-            
+
             return result
         } catch (error: unknown) {
-            let message: string;
-            if (error instanceof Error && typeof error.message === 'string') {
-                message = error.message;
+            let message: string
+            if (error instanceof Error && typeof error.message === "string") {
+                message = error.message
             } else {
-                message = "Unknown error occured";
+                message = "Unknown error occured"
             }
-            const context = `findAll on table ${this.table}`;
+            const context = `findAll on table ${this.table}`
 
-            console.error(`Failed to execute ${context}: ${message}`);
+            console.error(`Failed to execute ${context}: ${message}`)
             return {
                 error: {
                     status: false,
                     message: `Failed to execute ${context}: ${message}`,
                 },
-            };
+            }
         }
     }
 
@@ -419,39 +393,37 @@ export class Surreality<TTableSchema extends object = object> {
      *   - All options are autocompleted and type-checked based on your interface structure.
      *   - Always returns a single record (or null), never an array.
      */
-    public async findOne(
-        options?: SelectOneOptionsI<TTableSchema>
-    ): Promise<unknown | null | ErrorResponse> {
+    public async findOne(options?: SelectOneOptionsI<TTableSchema>): Promise<unknown | null | ErrorResponse> {
         try {
-            if (!this.surreal) throw new Error("Not connected to SurrealDB");
-            if (!this.table) throw new Error("Table is not written");
+            if (!this.surreal) throw new Error("Not connected to SurrealDB")
+            if (!this.table) throw new Error("Table is not written")
 
             // Generate query string using generator
-            const query = generateFindOneQuery(this.table, options);
+            const query = generateFindOneQuery(this.table, options)
 
-            const result = await this.surreal.query(query);
-            if (options?.raw) return result;
+            const result = await this.surreal.query(query)
+            if (options?.raw) return result
             // SurrealDB returns an object
             if (Array.isArray(result) && Array.isArray(result[0])) {
                 return result[0][0] ?? null
             }
-            return null;
+            return null
         } catch (error: unknown) {
-            let message: string;
-            if (error instanceof Error && typeof error.message === 'string') {
-                message = error.message;
+            let message: string
+            if (error instanceof Error && typeof error.message === "string") {
+                message = error.message
             } else {
-                message = "Unknown error occured";
+                message = "Unknown error occured"
             }
-            const context = `findOne on table ${this.table}`;
+            const context = `findOne on table ${this.table}`
 
-            console.error(`Failed to execute ${context}: ${message}`);
+            console.error(`Failed to execute ${context}: ${message}`)
             return {
                 error: {
                     status: false,
                     message: `Failed to execute ${context}: ${message}`,
                 },
-            };
+            }
         }
     }
 
@@ -472,38 +444,32 @@ export class Surreality<TTableSchema extends object = object> {
      */
     public async create(options: CreateOptionsI<TTableSchema>): Promise<any | ErrorResponse> {
         try {
-            if (!this.surreal) throw new Error("Not connected to SurrealDB");
-            if (!this.table) throw new Error("Table is not written");
+            if (!this.surreal) throw new Error("Not connected to SurrealDB")
+            if (!this.table) throw new Error("Table is not written")
 
-            const query = generateCreateQuery<TTableSchema>(this.table, options);
-            const result = await this.surreal.query(query);
-            if (options.raw) return result;
-            if (
-                Array.isArray(result) &&
-                result.length > 0 &&
-                typeof result[0] === 'object' &&
-                result[0] !== null &&
-                'result' in result[0]
-            ) {
-                return (result[0] as { result: any }).result;
+            const query = generateCreateQuery<TTableSchema>(this.table, options)
+            const result = await this.surreal.query(query)
+            if (options.raw) return result
+            if (Array.isArray(result)) {
+                return result[0]
             }
-            return result;
+            return result
         } catch (error: unknown) {
-            let message: string;
-            if (error instanceof Error && typeof error.message === 'string') {
-                message = error.message;
+            let message: string
+            if (error instanceof Error && typeof error.message === "string") {
+                message = error.message
             } else {
-                message = "Unknown error occured";
+                message = "Unknown error occured"
             }
-            const context = `create on table ${this.table}`;
+            const context = `create on table ${this.table}`
 
-            console.error(`Failed to execute ${context}: ${message}`);
+            console.error(`Failed to execute ${context}: ${message}`)
             return {
                 error: {
                     status: false,
                     message: `Failed to execute ${context}: ${message}`,
                 },
-            };
+            }
         }
     }
 
@@ -533,38 +499,32 @@ export class Surreality<TTableSchema extends object = object> {
      */
     public async update(options: UpdateOptionsI<TTableSchema>): Promise<any | ErrorResponse> {
         try {
-            if (!this.surreal) throw new Error("Not connected to SurrealDB");
-            if (!this.table) throw new Error("Table is not written");
+            if (!this.surreal) throw new Error("Not connected to SurrealDB")
+            if (!this.table) throw new Error("Table is not written")
 
-            const query = generateUpdateQuery<TTableSchema>(this.table, options);
-            const result = await this.surreal.query(query);
-            if (options.raw) return result;
-            if (
-                Array.isArray(result) &&
-                result.length > 0 &&
-                typeof result[0] === 'object' &&
-                result[0] !== null &&
-                'result' in result[0]
-            ) {
-                return (result[0] as { result: any }).result;
+            const query = generateUpdateQuery<TTableSchema>(this.table, options)
+            const result = await this.surreal.query(query)
+            if (options.raw) return result
+            if (Array.isArray(result)) {
+                return result[0]
             }
-            return result;
+            return result
         } catch (error: unknown) {
-            let message: string;
-            if (error instanceof Error && typeof error.message === 'string') {
-                message = error.message;
+            let message: string
+            if (error instanceof Error && typeof error.message === "string") {
+                message = error.message
             } else {
-                message = "Unknown error occured";
+                message = "Unknown error occured"
             }
-            const context = `update on table ${this.table}`;
+            const context = `update on table ${this.table}`
 
-            console.error(`Failed to execute ${context}: ${message}`);
+            console.error(`Failed to execute ${context}: ${message}`)
             return {
                 error: {
                     status: false,
                     message: `Failed to execute ${context}: ${message}`,
                 },
-            };
+            }
         }
     }
 
@@ -590,41 +550,35 @@ export class Surreality<TTableSchema extends object = object> {
      */
     public async delete(options: DeleteOptionsI<TTableSchema>): Promise<any | ErrorResponse> {
         try {
-            if (!this.surreal) throw new Error("Not connected to SurrealDB");
-            if (!this.table) throw new Error("Table is not written");
+            if (!this.surreal) throw new Error("Not connected to SurrealDB")
+            if (!this.table) throw new Error("Table is not written")
 
-            const query = generateDeleteQuery<TTableSchema>(this.table, options);
-            const result = await this.surreal.query(query);
-            if (options.raw) return result;
-            if (
-                Array.isArray(result) &&
-                result.length > 0 &&
-                typeof result[0] === 'object' &&
-                result[0] !== null &&
-                'result' in result[0]
-            ) {
-                return (result[0] as { result: any }).result;
+            const query = generateDeleteQuery<TTableSchema>(this.table, options)
+            const result = await this.surreal.query(query)
+            if (options.raw) return result
+            if (Array.isArray(result)) {
+                return result[0]
             }
-            return result;
+            return result
         } catch (error: unknown) {
-            let message: string;
-            if (error instanceof Error && typeof error.message === 'string') {
-                message = error.message;
+            let message: string
+            if (error instanceof Error && typeof error.message === "string") {
+                message = error.message
             } else {
-                message = "Unknown error occured";
+                message = "Unknown error occured"
             }
-            const context = `delete on table ${this.table}`;
+            const context = `delete on table ${this.table}`
 
-            console.error(`Failed to execute ${context}: ${message}`);
+            console.error(`Failed to execute ${context}: ${message}`)
             return {
                 error: {
                     status: false,
                     message: `Failed to execute ${context}: ${message}`,
                 },
-            };
+            }
         }
     }
 }
 
-export { Manager } from './Manager';
-export { DataTypes, DataType } from './Utils/DataTypes';
+export { Manager } from "./Manager.js"
+export { DataTypes, DataType } from "./Utils/DataTypes.js"

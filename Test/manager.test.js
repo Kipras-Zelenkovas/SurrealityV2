@@ -1,30 +1,49 @@
 // import { toSurrealqlString } from "surrealdb";
-import { Manager } from "../Manager.js";
-import { Surreality } from "../Surreality.js";
-import { DataTypes } from "../Utils/DataTypes.js";
+import { Manager } from "../dist/Manager.js"
+import { Surreality } from "../dist/Surreality.js"
+import { DataTypes } from "../dist/Utils/DataTypes.js"
 // import { casting } from "../Utils/casting.js";
 
 //Initializing SurrealDB manager
-const surreal = new Manager(
-    "http://localhost:8080",
-    "surreality",
-    "surreality",
-    "root",
-    "root"
-);
+const surreal = new Manager("http://localhost:8080", "test", "test", "test", "test")
 
-await surreal.connect("ROOT");
+await surreal.connect()
 
-await surreal.use({ namespace: "surreality", database: "surreality" });
+const User = new Surreality(surreal, "user")
 
-const Test = new Surreality(surreal, "user");
+await User.defineTable("SCHEMALESS", {
+    type: "NORMAL",
+    permissions: { full: true },
+    timestamps: true,
+    creationMode: "IFNOTEXISTS",
+})
 
-Test.defineField("kazkas", DataTypes.BOOLEAN, {
-    ifNotExist: true,
-    optional: true,
-});
+User.update({
+    data: {
+        name: "Pijus",
+        surname: "Kamarauskas",
+        email: "pijuskinas@gmail.com",
+    },
+    id: "user:kldbfd0cpsrmk6gkxl80",
+})
 
-Test.defineField("Test", DataTypes.OBJECT, {});
+// await User.defineField("name", DataTypes.STRING, {
+//     assertExpr: "string::len($value) > 0",
+//     creationMode: "IFNOTEXISTS",
+// })
+// await User.defineField("surname", DataTypes.STRING, {
+//     assertExpr: "string::len($value) > 0",
+//     creationMode: "IFNOTEXISTS",
+// })
+// await User.defineField("email", DataTypes.STRING, {
+//     assertExpr: "string::is::email($value)",
+//     creationMode: "IFNOTEXISTS",
+// })
+// await User.defineField("password", DataTypes.STRING, {
+//     creationMode: "IFNOTEXISTS",
+// })
+
+// surreal.query(`DEFINE INDEX IF NOT EXISTS userEmailIndex ON TABLE user COLUMNS email UNIQUE;`)
 
 // Test.defineTable("SCHEMAFULL", {
 //     type: "ANY",

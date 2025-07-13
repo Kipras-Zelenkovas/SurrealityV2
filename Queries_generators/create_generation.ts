@@ -1,5 +1,5 @@
-import { CreateOptionsI } from "../Interfaces/CreateOptionsI"
-import { casting } from "../Utils/casting"
+import { CreateOptionsI } from "../Interfaces/CreateOptionsI.js"
+import { casting } from "../Utils/casting.js"
 
 /**
  * Generates a SurrealDB CREATE query string for inserting records.

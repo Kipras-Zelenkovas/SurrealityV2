@@ -1,5 +1,5 @@
-import { SelectOptionsI } from '../Interfaces/SelectOptionsI';
-import { collectIncludeFields, generateFetchClause, generateWhereClause, generateOrderByClause, generateLimitOffsetClause } from './helper';
+import { SelectOptionsI } from '../Interfaces/SelectOptionsI.js';
+import { collectIncludeFields, generateFetchClause, generateWhereClause, generateOrderByClause, generateLimitOffsetClause } from './helper.js';
 
 /**
  * Generates a SurrealDB SELECT query string for findAll/select operations.

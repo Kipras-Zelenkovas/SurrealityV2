@@ -1,5 +1,5 @@
 // Helper functions for SurrealDB query clause generation
-import { casting } from '../Utils/casting';
+import { casting } from '../Utils/casting.js';
 /**
  * Flattens recursive, type-safe include options into SurrealDB FETCH clause paths.
  * @template T - The table schema interface.

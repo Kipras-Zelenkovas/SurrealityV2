@@ -1,4 +1,4 @@
-import { collectIncludeFields, generateFetchClause, generateWhereClause } from './helper';
+import { collectIncludeFields, generateFetchClause, generateWhereClause } from './helper.js';
 /**
  * Generates a SurrealDB SELECT query string for findOne/select single record operations.
  *

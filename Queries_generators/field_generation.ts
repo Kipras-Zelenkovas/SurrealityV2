@@ -1,6 +1,6 @@
-import { FieldOptsI } from "../Interfaces/TableI";
-import { DataType } from "../Utils/DataTypes";
-import { casting } from "../Utils/casting";
+import { FieldOptsI } from "../Interfaces/TableI.js";
+import { DataType } from "../Utils/DataTypes.js";
+import { casting } from "../Utils/casting.js";
 
 /**
  * Generates a SurrealDB DEFINE FIELD query string for a table field.

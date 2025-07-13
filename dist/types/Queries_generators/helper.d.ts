@@ -1,4 +1,4 @@
-import { RecursiveIncludeOption } from '../Interfaces/IncludeOption';
+import { RecursiveIncludeOption } from '../Interfaces/IncludeOption.js';
 /**
  * Flattens recursive, type-safe include options into SurrealDB FETCH clause paths.
  * @template T - The table schema interface.

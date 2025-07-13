@@ -1,4 +1,4 @@
-import { generateWhereClause } from './helper';
+import { generateWhereClause } from './helper.js';
 /**
  * Generates a SurrealDB DELETE query string for deleting records.
  *

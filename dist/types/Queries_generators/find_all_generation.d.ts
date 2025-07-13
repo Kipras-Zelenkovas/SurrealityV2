@@ -1,4 +1,4 @@
-import { SelectOptionsI } from '../Interfaces/SelectOptionsI';
+import { SelectOptionsI } from '../Interfaces/SelectOptionsI.js';
 /**
  * Generates a SurrealDB SELECT query string for findAll/select operations.
  *

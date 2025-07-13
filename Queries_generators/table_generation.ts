@@ -1,4 +1,4 @@
-import { TableOptsI } from "../Interfaces/TableI";
+import { TableOptsI } from "../Interfaces/TableI.js";
 
 /**
  * Generates a permissions query string based on the provided permissions configuration.
@@ -154,17 +154,12 @@ export const additionalFields = (
 ): string[] => {
     if (timestamps === undefined || timestamps === true) {
         return [
-            `DEFINE FIELD timestamps ON role FLEXIBLE TYPE object DEFAULT {} PERMISSIONS FULL;`,
             `DEFINE FIELD IF NOT EXISTS timestamps.createdAt ON TABLE ${table} TYPE datetime VALUE time::now() READONLY;`,
-            `DEFINE FIELD IF NOT EXISTS timestamps.updatedAt ON TABLE ${table} TYPE datetime VALUE time::now();`,
+            `DEFINE FIELD IF NOT EXISTS timestamps.updatedAt ON TABLE ${table} TYPE option<datetime> VALUE time::now();`,
             `DEFINE FIELD IF NOT EXISTS timestamps.deletedAt ON TABLE ${table} TYPE option<datetime>;`,
         ]
     } else if (typeof timestamps == "object") {
         let tempFields: string[] = [];
-
-        if(timestamps.createdAt || timestamps.updatedAt || timestamps.deletedAt){
-            tempFields.push(`DEFINE FIELD timestamps ON role FLEXIBLE TYPE object DEFAULT {} PERMISSIONS FULL;`)
-        }
 
         if (timestamps.createdAt === true) {
             tempFields.push(
@@ -174,7 +169,7 @@ export const additionalFields = (
 
         if (timestamps.updatedAt === true) {
             tempFields.push(
-                `DEFINE FIELD IF NOT EXISTS timestamps.updatedAt ON TABLE ${table} TYPE datetime VALUE time::now();`
+                `DEFINE FIELD IF NOT EXISTS timestamps.updatedAt ON TABLE ${table} TYPE option<datetime> VALUE time::now();`
             );
         }
 

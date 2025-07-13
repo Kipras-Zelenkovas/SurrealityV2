@@ -1,4 +1,4 @@
-import { casting } from "../Utils/casting";
+import { casting } from "../Utils/casting.js";
 /**
  * Generates a SurrealDB DEFINE FIELD query string for a table field.
  *
