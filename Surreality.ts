@@ -294,7 +294,7 @@ export class Surreality<TTableSchema extends object = object> {
      *
      * @example
      * // Get users with cars, but only select car ids
-     * await userOrm.findAll({ include: [{ model: 'cars', fields: ['id'] }] });
+     * await userOrm.findAll({ include: [{ model: 'cars' }] });
      *
      * @example
      * // Get users ordered by age descending, then name ascending
@@ -307,11 +307,14 @@ export class Surreality<TTableSchema extends object = object> {
      * @example
      * // Combine where, order, limit, and includes
      * await userOrm.findAll({
-     *   where: { active: true },
+     *   where: { active: true },npm
      *   order: '-createdAt',
      *   limit: 5,
-     *   include: [{ model: 'cars', fields: ['id'] }]
+     *   include: [{ model: 'cars' }]
      * });
+     * 
+     * @todo
+     * Make that you can select which fields to return -> now doesn't work with array of records
      *
      * @note
      *   - The 'order' option accepts a string (field name), an array of field names, or field names prefixed with '-' for descending order. E.g., 'age', ['-age', 'name'].
@@ -320,7 +323,9 @@ export class Surreality<TTableSchema extends object = object> {
      *   - The 'where' option is type-safe and flexible.
      *   - All options are autocompleted and type-checked based on your interface structure.
      */
-    public async findAll(options?: SelectOptionsI<TTableSchema>): Promise<unknown[] | null | ErrorResponse> {
+    public async findAll(options: SelectOptionsI<TTableSchema> & { raw: true }): Promise<unknown>
+    public async findAll(options?: SelectOptionsI<TTableSchema>): Promise<TTableSchema[] | null | ErrorResponse>
+    public async findAll(options?: SelectOptionsI<TTableSchema>): Promise<TTableSchema[] | null | ErrorResponse | unknown> {
         try {
             if (!this.surreal) throw new Error("Not connected to SurrealDB")
             if (!this.table) throw new Error("Table is not written")
@@ -332,10 +337,10 @@ export class Surreality<TTableSchema extends object = object> {
             if (options?.raw) return result
             // SurrealDB returns an array of results
             if (Array.isArray(result) && Array.isArray(result[0])) {
-                return result[0] ?? null
+                return (result[0] as TTableSchema[]) ?? null
             }
-
-            return result
+            // If result does not match expected shape, return null in typed mode
+            return null
         } catch (error: unknown) {
             let message: string
             if (error instanceof Error && typeof error.message === "string") {
@@ -393,7 +398,9 @@ export class Surreality<TTableSchema extends object = object> {
      *   - All options are autocompleted and type-checked based on your interface structure.
      *   - Always returns a single record (or null), never an array.
      */
-    public async findOne(options?: SelectOneOptionsI<TTableSchema>): Promise<unknown | null | ErrorResponse> {
+    public async findOne(options: SelectOneOptionsI<TTableSchema> & { raw: true }): Promise<unknown>
+    public async findOne(options?: SelectOneOptionsI<TTableSchema>): Promise<TTableSchema | null | ErrorResponse>
+    public async findOne(options?: SelectOneOptionsI<TTableSchema>): Promise<TTableSchema | null | ErrorResponse | unknown> {
         try {
             if (!this.surreal) throw new Error("Not connected to SurrealDB")
             if (!this.table) throw new Error("Table is not written")
@@ -405,7 +412,7 @@ export class Surreality<TTableSchema extends object = object> {
             if (options?.raw) return result
             // SurrealDB returns an object
             if (Array.isArray(result) && Array.isArray(result[0])) {
-                return result[0][0] ?? null
+                return (result[0][0] as TTableSchema) ?? null
             }
             return null
         } catch (error: unknown) {
@@ -581,4 +588,4 @@ export class Surreality<TTableSchema extends object = object> {
 }
 
 export { Manager } from "./Manager.js"
-export { DataTypes, DataType } from "./Utils/DataTypes.js"
+export { DataTypes, type DataType } from "./Utils/DataTypes.js"

@@ -277,7 +277,7 @@ export class Surreality {
      *
      * @example
      * // Get users with cars, but only select car ids
-     * await userOrm.findAll({ include: [{ model: 'cars', fields: ['id'] }] });
+     * await userOrm.findAll({ include: [{ model: 'cars' }] });
      *
      * @example
      * // Get users ordered by age descending, then name ascending
@@ -293,8 +293,11 @@ export class Surreality {
      *   where: { active: true },
      *   order: '-createdAt',
      *   limit: 5,
-     *   include: [{ model: 'cars', fields: ['id'] }]
+     *   include: [{ model: 'cars' }]
      * });
+     *
+     * @todo
+     * Make that you can select which fields to return -> now doesn't work with array of records
      *
      * @note
      *   - The 'order' option accepts a string (field name), an array of field names, or field names prefixed with '-' for descending order. E.g., 'age', ['-age', 'name'].
