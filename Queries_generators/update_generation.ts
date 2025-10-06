@@ -42,5 +42,12 @@ export function generateUpdateQuery<T extends object>(table: string, options: Up
         if (whereClause) query += " " + whereClause
     }
     query += ""
+
+    if (options.return) {
+        query += ` RETURN ${options.return};`
+    } else {
+        query += ` RETURN AFTER;`
+    }
+
     return query
 }

@@ -30,4 +30,6 @@ export interface UpdateOptionsI<T extends object = object> {
      * Provide a raw SurrealQL UPDATE query (overrides other options).
      */
     surrealql?: string;
+
+    return?: "BEFORE" | "AFTER" | "DIFF" | "NONE";
 } 
