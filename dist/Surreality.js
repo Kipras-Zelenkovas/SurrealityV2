@@ -240,72 +240,6 @@ export class Surreality {
             };
         }
     }
-    /**
-     * Performs a SELECT query on the current table, similar to Sequelize's findAll.
-     * Allows flexible querying with type-safe, recursive includes and fields.
-     *
-     * @param {SelectOptionsI<TTableSchema>} [options] - Query options for selecting records.
-     *   - fields: Array of field names to select from the main table (autocompleted from the interface).
-     *   - where: Filtering conditions (type-safe and flexible).
-     *   - order: Field(s) to order by. Accepts a string, array of strings, or strings prefixed with '-' for descending order (e.g., 'age', ['name', '-age']).
-     *   - limit: Maximum number of records to return.
-     *   - offset: Number of records to skip (for pagination).
-     *   - raw: If true, returns raw SurrealDB response.
-     *   - surrealql: Raw SurrealQL clause (overrides other options).
-     *   - include: Array of nested, type-safe includes for related models. Each include allows only valid relation fields, and its own fields/include options are autocompleted from the related interface.
-     *
-     * @returns {Promise<any[] | ErrorResponse>} - Array of records or ErrorResponse on failure.
-     *
-     * @example
-     * // Get all users with their cars and each car's brand (fully type-safe, recursive includes)
-     * await userOrm.findAll({
-     *   include: [
-     *     {
-     *       model: 'cars',
-     *       fields: ['id'],
-     *       include: [
-     *         { model: 'brand', fields: ['id', 'name'] }
-     *       ]
-     *     }
-     *   ],
-     *   fields: ['id', 'name', 'surname', 'cars']
-     * });
-     *
-     * @example
-     * // Get users with only id and name fields
-     * await userOrm.findAll({ fields: ['id', 'name'] });
-     *
-     * @example
-     * // Get users with cars, but only select car ids
-     * await userOrm.findAll({ include: [{ model: 'cars' }] });
-     *
-     * @example
-     * // Get users ordered by age descending, then name ascending
-     * await userOrm.findAll({ order: ['-age', 'name'] });
-     *
-     * @example
-     * // Get users with pagination (limit and offset)
-     * await userOrm.findAll({ limit: 10, offset: 20 });
-     *
-     * @example
-     * // Combine where, order, limit, and includes
-     * await userOrm.findAll({
-     *   where: { active: true },
-     *   order: '-createdAt',
-     *   limit: 5,
-     *   include: [{ model: 'cars' }]
-     * });
-     *
-     * @todo
-     * Make that you can select which fields to return -> now doesn't work with array of records
-     *
-     * @note
-     *   - The 'order' option accepts a string (field name), an array of field names, or field names prefixed with '-' for descending order. E.g., 'age', ['-age', 'name'].
-     *   - The 'fields' option in includes will select those fields in the main SELECT clause (e.g., 'cars.id').
-     *   - The 'include' option is fully recursive and type-safe: only valid relation fields and their valid fields/includes are allowed at each level.
-     *   - The 'where' option is type-safe and flexible.
-     *   - All options are autocompleted and type-checked based on your interface structure.
-     */
     async findAll(options) {
         try {
             if (!this.surreal)
@@ -321,7 +255,8 @@ export class Surreality {
             if (Array.isArray(result) && Array.isArray(result[0])) {
                 return result[0] ?? null;
             }
-            return result;
+            // If result does not match expected shape, return null in typed mode
+            return null;
         }
         catch (error) {
             let message;
@@ -341,44 +276,6 @@ export class Surreality {
             };
         }
     }
-    /**
-     * Finds a single record from the table, supporting type-safe, recursive includes and fields.
-     * Returns the first record found or null if not found.
-     *
-     * @param {SelectOneOptionsI<TTableSchema>} [options] - Query options for selecting a single record.
-     *   - fields: Array of field names to select from the main table (autocompleted from the interface).
-     *   - where: Filtering conditions (flexible, not type-checked).
-     *   - raw: If true, returns raw SurrealDB response.
-     *   - surrealql: Raw SurrealQL clause (overrides other options).
-     *   - include: Array of nested, type-safe includes for related models. Each include allows only valid relation fields, and its own fields/include options are autocompleted from the related interface.
-     *
-     * @returns {Promise<any | null | ErrorResponse>} - The found record, null if not found, or ErrorResponse on failure.
-     *
-     * @example
-     * // Find a user with cars and their brands
-     * await userOrm.findOne({
-     *   include: [
-     *     {
-     *       model: 'cars',
-     *       fields: ['id'],
-     *       include: [
-     *         { model: 'brand', fields: ['id', 'name'] }
-     *       ]
-     *     }
-     *   ]
-     * });
-     *
-     * @example
-     * // Find a user with only id and name fields
-     * await userOrm.findOne({ fields: ['id', 'name'] });
-     *
-     * @note
-     *   - The 'fields' option in includes will select those fields in the main SELECT clause (e.g., 'cars.id').
-     *   - The 'include' option is fully recursive and type-safe: only valid relation fields and their valid fields/includes are allowed at each level.
-     *   - The 'where' option is flexible and not type-checked.
-     *   - All options are autocompleted and type-checked based on your interface structure.
-     *   - Always returns a single record (or null), never an array.
-     */
     async findOne(options) {
         try {
             if (!this.surreal)

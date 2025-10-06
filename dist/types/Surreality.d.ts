@@ -245,7 +245,7 @@ export declare class Surreality<TTableSchema extends object = object> {
      * @example
      * // Combine where, order, limit, and includes
      * await userOrm.findAll({
-     *   where: { active: true },
+     *   where: { active: true },npm
      *   order: '-createdAt',
      *   limit: 5,
      *   include: [{ model: 'cars' }]
@@ -261,7 +261,10 @@ export declare class Surreality<TTableSchema extends object = object> {
      *   - The 'where' option is type-safe and flexible.
      *   - All options are autocompleted and type-checked based on your interface structure.
      */
-    findAll(options?: SelectOptionsI<TTableSchema>): Promise<unknown[] | null | ErrorResponse>;
+    findAll(options: SelectOptionsI<TTableSchema> & {
+        raw: true;
+    }): Promise<unknown>;
+    findAll(options?: SelectOptionsI<TTableSchema>): Promise<TTableSchema[] | null | ErrorResponse>;
     /**
      * Finds a single record from the table, supporting type-safe, recursive includes and fields.
      * Returns the first record found or null if not found.
@@ -300,7 +303,10 @@ export declare class Surreality<TTableSchema extends object = object> {
      *   - All options are autocompleted and type-checked based on your interface structure.
      *   - Always returns a single record (or null), never an array.
      */
-    findOne(options?: SelectOneOptionsI<TTableSchema>): Promise<unknown | null | ErrorResponse>;
+    findOne(options: SelectOneOptionsI<TTableSchema> & {
+        raw: true;
+    }): Promise<unknown>;
+    findOne(options?: SelectOneOptionsI<TTableSchema>): Promise<TTableSchema | null | ErrorResponse>;
     /**
      * Creates a new record in the table.
      * Supports SurrealDB SET and CONTENT syntax, explicit record IDs, and custom SurrealQL.

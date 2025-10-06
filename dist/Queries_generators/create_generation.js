@@ -30,7 +30,8 @@ export function generateCreateQuery(table, options) {
         const setClauses = Object.entries(data)
             .map(([k, v]) => `${k} = ${typeof v === "string" ? `'${v.replace(/'/g, "''")}'` : JSON.stringify(v)}`)
             .join(", ");
-        query += `SET ${setClauses};`;
+        query += `SET ${setClauses}`;
     }
+    query += ` RETURN AFTER;`;
     return query;
 }

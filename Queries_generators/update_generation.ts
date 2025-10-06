@@ -27,7 +27,7 @@ export function generateUpdateQuery<T extends object>(table: string, options: Up
             castedData.push(`"${key}": ${casting((options.data as any)[key])}`)
         })
 
-        query += `CONTENT {${castedData.join(", ")}};`
+        query += `CONTENT {${castedData.join(", ")}}`
     } else {
         // SET syntax: flatten object to SET field1 = value1, ...
         const data = Array.isArray(options.data) ? options.data[0] : options.data

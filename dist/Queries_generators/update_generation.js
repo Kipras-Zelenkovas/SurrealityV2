@@ -23,7 +23,7 @@ export function generateUpdateQuery(table, options) {
         Object.keys(options.data).map((key) => {
             castedData.push(`"${key}": ${casting(options.data[key])}`);
         });
-        query += `CONTENT {${castedData.join(", ")}};`;
+        query += `CONTENT {${castedData.join(", ")}}`;
     }
     else {
         // SET syntax: flatten object to SET field1 = value1, ...
@@ -40,5 +40,11 @@ export function generateUpdateQuery(table, options) {
             query += " " + whereClause;
     }
     query += "";
+    if (options.return) {
+        query += ` RETURN ${options.return};`;
+    }
+    else {
+        query += ` RETURN AFTER;`;
+    }
     return query;
 }
