@@ -143,7 +143,7 @@ export const generateTableQuery = (table, base, options) => {
 export const additionalFields = (table, timestamps) => {
     if (timestamps === undefined || timestamps === true) {
         return [
-            `DEFINE FIELD IF NOT EXISTS timestamps ON TABLE ${table} FLEXIBLE TYPE option<object>;`,
+            `DEFINE FIELD IF NOT EXISTS timestamps ON TABLE ${table} FLEXIBLE TYPE object default {};`,
             `DEFINE FIELD IF NOT EXISTS timestamps.createdAt ON TABLE ${table} TYPE datetime VALUE time::now() READONLY;`,
             `DEFINE FIELD IF NOT EXISTS timestamps.updatedAt ON TABLE ${table} TYPE option<datetime> VALUE time::now();`,
             `DEFINE FIELD IF NOT EXISTS timestamps.deletedAt ON TABLE ${table} TYPE option<datetime>;`,
@@ -151,7 +151,7 @@ export const additionalFields = (table, timestamps) => {
     }
     else if (typeof timestamps == "object") {
         let tempFields = [
-            `DEFINE FIELD IF NOT EXISTS timestamps ON TABLE ${table} FLEXIBLE TYPE object;`,
+            `DEFINE FIELD IF NOT EXISTS timestamps ON TABLE ${table} FLEXIBLE TYPE object default {};`,
         ];
         if (timestamps.createdAt === true) {
             tempFields.push(`DEFINE FIELD IF NOT EXISTS timestamps.createdAt ON TABLE ${table} TYPE datetime VALUE time::now() READONLY;`);

@@ -224,11 +224,8 @@ export const parseDatesToDayjs = (value: any): any => {
     if (value === null || value === undefined) return value;
     if (isDayjs(value)) return value;
     
-    if (typeof value === 'string') {
-        if (isDateTime(value)) {
-            return dayjs(value);
-        }
-        return value;
+    if(dayjs(value).isValid()){
+        return dayjs(value);
     }
     if (Array.isArray(value)) {
         return value.map(v => parseDatesToDayjs(v));
