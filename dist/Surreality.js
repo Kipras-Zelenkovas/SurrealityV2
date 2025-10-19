@@ -5,6 +5,7 @@ import { generateFindOneQuery } from "./Queries_generators/find_one_generation.j
 import { generateCreateQuery } from "./Queries_generators/create_generation.js";
 import { generateUpdateQuery } from "./Queries_generators/update_generation.js";
 import { generateDeleteQuery } from "./Queries_generators/delete_generation.js";
+import { parseDatesToDayjs } from "./Utils/casting.js";
 /**
  * Surreality ORM class for SurrealDB.
  *
@@ -253,7 +254,8 @@ export class Surreality {
                 return result;
             // SurrealDB returns an array of results
             if (Array.isArray(result) && Array.isArray(result[0])) {
-                return result[0] ?? null;
+                const rows = result[0] ?? null;
+                return rows ? rows.map(r => parseDatesToDayjs(r)) : null;
             }
             // If result does not match expected shape, return null in typed mode
             return null;
@@ -289,7 +291,8 @@ export class Surreality {
                 return result;
             // SurrealDB returns an object
             if (Array.isArray(result) && Array.isArray(result[0])) {
-                return result[0][0] ?? null;
+                const row = result[0][0] ?? null;
+                return row ? parseDatesToDayjs(row) : null;
             }
             return null;
         }
@@ -337,9 +340,9 @@ export class Surreality {
             if (options.raw)
                 return result;
             if (Array.isArray(result)) {
-                return result[0];
+                return parseDatesToDayjs(result[0]);
             }
-            return result;
+            return parseDatesToDayjs(result);
         }
         catch (error) {
             let message;
@@ -394,9 +397,9 @@ export class Surreality {
             if (options.raw)
                 return result;
             if (Array.isArray(result)) {
-                return result[0];
+                return parseDatesToDayjs(result[0]);
             }
-            return result;
+            return parseDatesToDayjs(result);
         }
         catch (error) {
             let message;
@@ -447,9 +450,9 @@ export class Surreality {
             if (options.raw)
                 return result;
             if (Array.isArray(result)) {
-                return result[0];
+                return parseDatesToDayjs(result[0]);
             }
-            return result;
+            return parseDatesToDayjs(result);
         }
         catch (error) {
             let message;

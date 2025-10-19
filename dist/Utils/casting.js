@@ -83,8 +83,14 @@ const handleObject = (obj) => {
         : casting(value)}`)
         .join(", ")}}`;
 };
+import dayjs from "dayjs";
+/**
+ * Checks whether a value is a Dayjs object (duck-typed)
+ */
+const isDayjs = (v) => v && typeof v === 'object' && typeof v.toDate === 'function' && typeof v.format === 'function';
 /**
  * Main casting function that converts data to type-tagged strings
+ * Accepts Dayjs objects (will be serialized to ISO strings) and handles recursive structures.
  * @param opt - Casting options or raw data
  * @returns Type-tagged string or "NONE" for invalid
  */
@@ -155,6 +161,10 @@ export const casting = (opt) => {
                 }
             }
         }
+        if (isDayjs(dataInput)) {
+            // Serialize Dayjs to ISO with milliseconds and Z
+            return `${TYPES.DATETIME}\"${dataInput.toISOString()}\"`;
+        }
         if (Array.isArray(dataInput)) {
             return handleArray(dataInput, dataAsInput);
         }
@@ -184,4 +194,31 @@ export const casting = (opt) => {
         console.error("Failed to cast:", err);
         return "NONE";
     }
+};
+/**
+ * Recursively traverse a value and convert SurrealDB datetime tagged values or ISO strings to Dayjs objects.
+ * Accepts: strings matching ISO pattern or objects that contain datetime fields.
+ */
+export const parseDatesToDayjs = (value) => {
+    if (value === null || value === undefined)
+        return value;
+    if (isDayjs(value))
+        return value;
+    if (typeof value === 'string') {
+        if (isDateTime(value)) {
+            return dayjs(value);
+        }
+        return value;
+    }
+    if (Array.isArray(value)) {
+        return value.map(v => parseDatesToDayjs(v));
+    }
+    if (typeof value === 'object') {
+        const out = {};
+        for (const [k, v] of Object.entries(value)) {
+            out[k] = parseDatesToDayjs(v);
+        }
+        return out;
+    }
+    return value;
 };

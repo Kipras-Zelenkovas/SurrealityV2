@@ -4,6 +4,7 @@ export declare const DataTypes: {
     readonly BOOLEAN: "bool";
     readonly BYTES: "bytes";
     readonly DATATIME: "datetime";
+    readonly DATETIME: "datetime";
     readonly DECIMAL: "decimal";
     readonly DURATION: "duration";
     readonly FLOAT: "float";

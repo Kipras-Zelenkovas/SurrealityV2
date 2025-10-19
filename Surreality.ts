@@ -14,6 +14,7 @@ import { UpdateOptionsI } from "./Interfaces/UpdateOptionsI.js"
 import { generateUpdateQuery } from "./Queries_generators/update_generation.js"
 import { DeleteOptionsI } from "./Interfaces/DeleteOptionsI.js"
 import { generateDeleteQuery } from "./Queries_generators/delete_generation.js"
+import { parseDatesToDayjs } from "./Utils/casting.js"
 
 /**
  * Surreality ORM class for SurrealDB.
@@ -337,7 +338,8 @@ export class Surreality<TTableSchema extends object = object> {
             if (options?.raw) return result
             // SurrealDB returns an array of results
             if (Array.isArray(result) && Array.isArray(result[0])) {
-                return (result[0] as TTableSchema[]) ?? null
+                const rows = (result[0] as TTableSchema[]) ?? null
+                return rows ? (rows.map(r => parseDatesToDayjs(r)) as TTableSchema[]) : null
             }
             // If result does not match expected shape, return null in typed mode
             return null
@@ -412,7 +414,8 @@ export class Surreality<TTableSchema extends object = object> {
             if (options?.raw) return result
             // SurrealDB returns an object
             if (Array.isArray(result) && Array.isArray(result[0])) {
-                return (result[0][0] as TTableSchema) ?? null
+                const row = (result[0][0] as TTableSchema) ?? null
+                return row ? (parseDatesToDayjs(row) as TTableSchema) : null
             }
             return null
         } catch (error: unknown) {
@@ -458,9 +461,9 @@ export class Surreality<TTableSchema extends object = object> {
             const result = await this.surreal.query(query)
             if (options.raw) return result
             if (Array.isArray(result)) {
-                return result[0]
+                return parseDatesToDayjs(result[0])
             }
-            return result
+            return parseDatesToDayjs(result)
         } catch (error: unknown) {
             let message: string
             if (error instanceof Error && typeof error.message === "string") {
@@ -513,9 +516,9 @@ export class Surreality<TTableSchema extends object = object> {
             const result = await this.surreal.query(query)
             if (options.raw) return result
             if (Array.isArray(result)) {
-                return result[0]
+                return parseDatesToDayjs(result[0])
             }
-            return result
+            return parseDatesToDayjs(result)
         } catch (error: unknown) {
             let message: string
             if (error instanceof Error && typeof error.message === "string") {
@@ -564,9 +567,9 @@ export class Surreality<TTableSchema extends object = object> {
             const result = await this.surreal.query(query)
             if (options.raw) return result
             if (Array.isArray(result)) {
-                return result[0]
+                return parseDatesToDayjs(result[0])
             }
-            return result
+            return parseDatesToDayjs(result)
         } catch (error: unknown) {
             let message: string
             if (error instanceof Error && typeof error.message === "string") {

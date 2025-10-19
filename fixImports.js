@@ -56,5 +56,6 @@ function fixImports(dir) {
     })
 }
 
-fixImports("./") // Process the project root
-console.log("🎉 All imports fixed!")
+const target = process.argv[2] || "./dist"
+fixImports(target) // Process the specified directory (defaults to ./dist)
+console.log(`🎉 All imports fixed in: ${target}`)

@@ -31,14 +31,14 @@ export declare class Manager {
     /**
      * Connects to the SurrealDB instance based on the specified mode.
      * @async
-     * @param {SurrealScope} [mode="default"] - The connection mode. Can be "default", "root", or "namespace".
+     * @param {SurrealScope} [mode="DATABASE"] - The connection mode. Can be "DATABASE", "ROOT", or "NAMESPACE".
      * @returns {Promise<void | ErrorResponse>} - Returns `void` on success or an error response on failure.
      * @example
      * // Connect with default settings
      * await manager.connect();
      *
      * // Connect as root
-     * await manager.connect("root");
+     * await manager.connect("ROOT");
      *
      * // Connect to a specific namespace
      * await manager.connect("namespace");

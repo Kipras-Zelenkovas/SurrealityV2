@@ -156,7 +156,7 @@ export const additionalFields = (table, timestamps) => {
         if (timestamps.updatedAt === true) {
             tempFields.push(`DEFINE FIELD IF NOT EXISTS timestamps.updatedAt ON TABLE ${table} TYPE option<datetime> VALUE time::now();`);
         }
-        if (timestamps.updatedAt === true) {
+        if (timestamps.deletedAt === true) {
             tempFields.push(`DEFINE FIELD IF NOT EXISTS timestamps.deletedAt ON TABLE ${table} TYPE option<datetime>;`);
         }
         return tempFields;

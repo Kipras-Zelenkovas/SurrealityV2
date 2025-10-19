@@ -173,7 +173,7 @@ export const additionalFields = (
             );
         }
 
-        if (timestamps.updatedAt === true) {
+        if (timestamps.deletedAt === true) {
             tempFields.push(
                 `DEFINE FIELD IF NOT EXISTS timestamps.deletedAt ON TABLE ${table} TYPE option<datetime>;`
             );

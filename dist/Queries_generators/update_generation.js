@@ -26,10 +26,10 @@ export function generateUpdateQuery(table, options) {
         query += `CONTENT {${castedData.join(", ")}}`;
     }
     else {
-        // SET syntax: flatten object to SET field1 = value1, ...
+        // SET syntax: flatten object to SET field1 = value1, ... using casting for correct SurrealQL formatting
         const data = Array.isArray(options.data) ? options.data[0] : options.data;
         const setClauses = Object.entries(data)
-            .map(([k, v]) => `${k} = ${typeof v === "string" ? `'${v.replace(/'/g, "''")}'` : JSON.stringify(v)}`)
+            .map(([k, v]) => `${k} = ${casting(v)}`)
             .join(", ");
         query += `SET ${setClauses}`;
     }

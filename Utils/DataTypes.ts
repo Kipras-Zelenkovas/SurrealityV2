@@ -4,6 +4,7 @@ export const DataTypes = {
     BOOLEAN:    "bool",
     BYTES:      "bytes",
     DATATIME:   "datetime",
+    DATETIME:   "datetime",
     DECIMAL:    "decimal",
     DURATION:   "duration",
     FLOAT:      "float",
