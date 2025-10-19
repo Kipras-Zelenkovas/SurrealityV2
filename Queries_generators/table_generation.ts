@@ -154,7 +154,7 @@ export const additionalFields = (
 ): string[] => {
     if (timestamps === undefined || timestamps === true) {
         return [
-            `DEFINE FIELD IF NOT EXISTS timestamps ON TABLE ${table} FLEXIBLE TYPE object;`,
+            `DEFINE FIELD IF NOT EXISTS timestamps ON TABLE ${table} FLEXIBLE TYPE option<object>;`,
             `DEFINE FIELD IF NOT EXISTS timestamps.createdAt ON TABLE ${table} TYPE datetime VALUE time::now() READONLY;`,
             `DEFINE FIELD IF NOT EXISTS timestamps.updatedAt ON TABLE ${table} TYPE option<datetime> VALUE time::now();`,
             `DEFINE FIELD IF NOT EXISTS timestamps.deletedAt ON TABLE ${table} TYPE option<datetime>;`,
