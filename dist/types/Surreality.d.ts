@@ -322,7 +322,7 @@ export declare class Surreality<TTableSchema extends object = object> {
      * // Type-safe create with autocomplete for UserTable fields
      * await userOrm.create({ data: { name: 'Alice', age: 30 } });
      */
-    create(options: CreateOptionsI<TTableSchema>): Promise<any | ErrorResponse>;
+    create(options: CreateOptionsI<Omit<TTableSchema, "id">>): Promise<any | ErrorResponse>;
     /**
      * Updates records in the table.
      * Supports SurrealDB CONTENT and SET syntax, updating by record ID or WHERE clause, and custom SurrealQL.

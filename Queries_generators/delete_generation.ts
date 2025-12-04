@@ -20,7 +20,7 @@ export function generateDeleteQuery<T extends object>(table: string, options: De
     let query = `DELETE ${target}`;
     // WHERE clause (only if not deleting by id)
     if (!options.id && options.where) {
-        const whereClause = generateWhereClause(options.where);
+        const whereClause = generateWhereClause(options.where, options?.operator, options?.joinOperator);
         if (whereClause) query += ' ' + whereClause;
     }
     query += ';';

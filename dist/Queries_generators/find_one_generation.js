@@ -20,7 +20,7 @@ export function generateFindOneQuery(table, options) {
     // FETCH clause
     const fetchClause = generateFetchClause(options?.include);
     // WHERE clause
-    const whereClause = (!options?.surrealql) ? generateWhereClause(options?.where) : '';
+    const whereClause = (!options?.surrealql) ? generateWhereClause(options?.where, options?.operator, options?.joinOperator) : '';
     // LIMIT 1 (unless surrealql already has a limit)
     let limitClause = '';
     if (!options?.surrealql) {

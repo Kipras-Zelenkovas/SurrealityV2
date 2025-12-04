@@ -31,4 +31,6 @@ export interface UpdateOptionsI<T extends object = object> {
      */
     surrealql?: string;
     return?: "BEFORE" | "AFTER" | "DIFF" | "NONE";
+    operator?: "=" | "!=" | "<" | "<=" | ">" | ">=" | "CONTAINS" | "CONTAINSNOT";
+    joinOperator?: "AND" | "OR";
 }

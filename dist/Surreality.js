@@ -5,7 +5,7 @@ import { generateFindOneQuery } from "./Queries_generators/find_one_generation.j
 import { generateCreateQuery } from "./Queries_generators/create_generation.js";
 import { generateUpdateQuery } from "./Queries_generators/update_generation.js";
 import { generateDeleteQuery } from "./Queries_generators/delete_generation.js";
-import { parseDatesToDayjs } from "./Utils/casting.js";
+import { idConvertionToString, parseDatesToDayjs } from "./Utils/casting.js";
 /**
  * Surreality ORM class for SurrealDB.
  *
@@ -250,12 +250,11 @@ export class Surreality {
             // Generate query string using generator
             const query = generateFindAllQuery(this.table, options);
             const result = await this.surreal.query(query);
-            if (options?.raw)
-                return result;
+            // if (options?.raw) return result
             // SurrealDB returns an array of results
             if (Array.isArray(result) && Array.isArray(result[0])) {
                 const rows = result[0] ?? null;
-                return rows ? rows.map(r => parseDatesToDayjs(r)) : null;
+                return rows ? rows.map(r => parseDatesToDayjs(idConvertionToString(r))) : null;
             }
             // If result does not match expected shape, return null in typed mode
             return null;
@@ -292,7 +291,7 @@ export class Surreality {
             // SurrealDB returns an object
             if (Array.isArray(result) && Array.isArray(result[0])) {
                 const row = result[0][0] ?? null;
-                return row ? parseDatesToDayjs(row) : null;
+                return row ? parseDatesToDayjs(idConvertionToString(row)) : null;
             }
             return null;
         }
@@ -340,9 +339,9 @@ export class Surreality {
             if (options.raw)
                 return result;
             if (Array.isArray(result)) {
-                return parseDatesToDayjs(result[0]);
+                return parseDatesToDayjs(idConvertionToString(result[0]));
             }
-            return parseDatesToDayjs(result);
+            return parseDatesToDayjs(idConvertionToString(result));
         }
         catch (error) {
             let message;
@@ -397,9 +396,9 @@ export class Surreality {
             if (options.raw)
                 return result;
             if (Array.isArray(result)) {
-                return parseDatesToDayjs(result[0]);
+                return parseDatesToDayjs(idConvertionToString(result[0]));
             }
-            return parseDatesToDayjs(result);
+            return parseDatesToDayjs(idConvertionToString(result));
         }
         catch (error) {
             let message;

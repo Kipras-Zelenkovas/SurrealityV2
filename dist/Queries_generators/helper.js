@@ -50,21 +50,21 @@ export function collectIncludeFields(include, parentPath = '') {
  * @param {Partial<T> & Record<string, any>} where - Filtering conditions (type-safe and flexible).
  * @returns {string} - The generated WHERE clause, or an empty string if no conditions.
  */
-export function generateWhereClause(where) {
+export function generateWhereClause(where, operator, joinOperator = "AND") {
     if (!where)
         return '';
     const conditions = Object.entries(where).map(([key, value]) => {
         if (typeof value === "string") {
-            return `${key} = ${casting(value.replace(/'/g, "''"))}`;
+            return `${key} ${operator || '='} ${casting(value.replace(/'/g, "''"))}`;
         }
         else if (typeof value === "boolean" || typeof value === "number") {
-            return `${key} = ${casting(value)}`;
+            return `${key} ${operator || '='} ${casting(value)}`;
         }
         else {
-            return `${key} = ${casting(value)}`;
+            return `${key} ${operator || '='} ${casting(value)}`;
         }
     });
-    return conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+    return conditions.length > 0 ? `WHERE ${conditions.join(` ${joinOperator} `)}` : '';
 }
 /**
  * Generates a SurrealDB ORDER BY clause from order option(s).

@@ -61,18 +61,18 @@ export function collectIncludeFields<T>(
  * @param {Partial<T> & Record<string, any>} where - Filtering conditions (type-safe and flexible).
  * @returns {string} - The generated WHERE clause, or an empty string if no conditions.
  */
-export function generateWhereClause<T = any>(where?: Partial<T> & Record<string, any>): string {
+export function generateWhereClause<T = any>(where?: Partial<T> & Record<string, any>, operator?: string, joinOperator: "AND" | "OR" = "AND"): string {
     if (!where) return '';
     const conditions = Object.entries(where).map(([key, value]) => {
         if (typeof value === "string") {
-            return `${key} = ${casting(value.replace(/'/g, "''"))}`
+            return `${key} ${operator || '='} ${casting(value.replace(/'/g, "''"))}`
         } else if (typeof value === "boolean" || typeof value === "number") {
-            return `${key} = ${casting(value)}`
+            return `${key} ${operator || '='} ${casting(value)}`
         } else {
-            return `${key} = ${casting(value)}`
+            return `${key} ${operator || '='} ${casting(value)}`
         }
     });
-    return conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+    return conditions.length > 0 ? `WHERE ${conditions.join(` ${joinOperator} `)}` : '';
 }
 
 /**

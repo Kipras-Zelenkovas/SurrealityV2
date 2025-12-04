@@ -22,7 +22,7 @@ export declare function collectIncludeFields<T>(include: Array<RecursiveIncludeO
  * @param {Partial<T> & Record<string, any>} where - Filtering conditions (type-safe and flexible).
  * @returns {string} - The generated WHERE clause, or an empty string if no conditions.
  */
-export declare function generateWhereClause<T = any>(where?: Partial<T> & Record<string, any>): string;
+export declare function generateWhereClause<T = any>(where?: Partial<T> & Record<string, any>, operator?: string, joinOperator?: "AND" | "OR"): string;
 /**
  * Generates a SurrealDB ORDER BY clause from order option(s).
  */

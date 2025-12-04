@@ -1,3 +1,4 @@
+import dayjs from "dayjs"
 import { UpdateOptionsI } from "../Interfaces/UpdateOptionsI.js"
 import { casting } from "../Utils/casting.js"
 import { generateWhereClause } from "./helper.js"
@@ -27,18 +28,22 @@ export function generateUpdateQuery<T extends object>(table: string, options: Up
             castedData.push(`"${key}": ${casting((options.data as any)[key])}`)
         })
 
-        query += `CONTENT {${castedData.join(", ")}}`
+        query += `CONTENT {${castedData.join(", ")}, "timestamps": {
+            "updatedAt": <datetime>"${dayjs().toISOString()}"
+        }}`
     } else {
         // SET syntax: flatten object to SET field1 = value1, ... using casting for correct SurrealQL formatting
         const data = Array.isArray(options.data) ? options.data[0] : options.data
         const setClauses = Object.entries(data)
             .map(([k, v]) => `${k} = ${casting(v)}`)
             .join(", ")
-        query += `SET ${setClauses}`
+        query += `SET ${setClauses}, "timestamps"={
+            updatedAt: <datetime>"${dayjs().toISOString}"
+        }`
     }
     // WHERE clause (only if not updating by id)
     if (!options.id && options.where) {
-        const whereClause = generateWhereClause(options.where)
+        const whereClause = generateWhereClause(options.where, options?.operator, options?.joinOperator)
         if (whereClause) query += " " + whereClause
     }
     query += ""

@@ -14,7 +14,7 @@ import { UpdateOptionsI } from "./Interfaces/UpdateOptionsI.js"
 import { generateUpdateQuery } from "./Queries_generators/update_generation.js"
 import { DeleteOptionsI } from "./Interfaces/DeleteOptionsI.js"
 import { generateDeleteQuery } from "./Queries_generators/delete_generation.js"
-import { parseDatesToDayjs } from "./Utils/casting.js"
+import { idConvertionToString, parseDatesToDayjs } from "./Utils/casting.js"
 
 /**
  * Surreality ORM class for SurrealDB.
@@ -335,11 +335,11 @@ export class Surreality<TTableSchema extends object = object> {
             const query = generateFindAllQuery(this.table, options)
 
             const result = await this.surreal.query(query)
-            if (options?.raw) return result
+            // if (options?.raw) return result
             // SurrealDB returns an array of results
             if (Array.isArray(result) && Array.isArray(result[0])) {
                 const rows = (result[0] as TTableSchema[]) ?? null
-                return rows ? (rows.map(r => parseDatesToDayjs(r)) as TTableSchema[]) : null
+                return rows ? (rows.map(r => parseDatesToDayjs(idConvertionToString(r))) as TTableSchema[]) : null
             }
             // If result does not match expected shape, return null in typed mode
             return null
@@ -415,7 +415,7 @@ export class Surreality<TTableSchema extends object = object> {
             // SurrealDB returns an object
             if (Array.isArray(result) && Array.isArray(result[0])) {
                 const row = (result[0][0] as TTableSchema) ?? null
-                return row ? (parseDatesToDayjs(row) as TTableSchema) : null
+                return row ? (parseDatesToDayjs(idConvertionToString(row)) as TTableSchema) : null
             }
             return null
         } catch (error: unknown) {
@@ -452,18 +452,18 @@ export class Surreality<TTableSchema extends object = object> {
      * // Type-safe create with autocomplete for UserTable fields
      * await userOrm.create({ data: { name: 'Alice', age: 30 } });
      */
-    public async create(options: CreateOptionsI<TTableSchema>): Promise<any | ErrorResponse> {
+    public async create(options: CreateOptionsI<Omit<TTableSchema, "id">>): Promise<any | ErrorResponse> {
         try {
             if (!this.surreal) throw new Error("Not connected to SurrealDB")
             if (!this.table) throw new Error("Table is not written")
 
-            const query = generateCreateQuery<TTableSchema>(this.table, options)
+            const query = generateCreateQuery<Omit<TTableSchema, "id">>(this.table, options)
             const result = await this.surreal.query(query)
             if (options.raw) return result
             if (Array.isArray(result)) {
-                return parseDatesToDayjs(result[0])
+                return parseDatesToDayjs(idConvertionToString(result[0]))
             }
-            return parseDatesToDayjs(result)
+            return parseDatesToDayjs(idConvertionToString(result))
         } catch (error: unknown) {
             let message: string
             if (error instanceof Error && typeof error.message === "string") {
@@ -516,9 +516,9 @@ export class Surreality<TTableSchema extends object = object> {
             const result = await this.surreal.query(query)
             if (options.raw) return result
             if (Array.isArray(result)) {
-                return parseDatesToDayjs(result[0])
+                return parseDatesToDayjs(idConvertionToString(result[0]))
             }
-            return parseDatesToDayjs(result)
+            return parseDatesToDayjs(idConvertionToString(result))
         } catch (error: unknown) {
             let message: string
             if (error instanceof Error && typeof error.message === "string") {

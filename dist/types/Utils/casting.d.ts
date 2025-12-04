@@ -5,8 +5,5 @@
  * @returns Type-tagged string or "NONE" for invalid
  */
 export declare const casting: (opt: any) => string;
-/**
- * Recursively traverse a value and convert SurrealDB datetime tagged values or ISO strings to Dayjs objects.
- * Accepts: strings matching ISO pattern or objects that contain datetime fields.
- */
 export declare const parseDatesToDayjs: (value: any) => any;
+export declare const idConvertionToString: (value: any) => any;

@@ -21,4 +21,6 @@ export interface DeleteOptionsI<T extends object = object> {
      * Provide a raw SurrealQL DELETE query (overrides other options).
      */
     surrealql?: string;
+    operator?: "=" | "!=" | "<" | "<=" | ">" | ">=" | "CONTAINS" | "CONTAINSNOT";
+    joinOperator?: "AND" | "OR";
 }

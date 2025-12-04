@@ -84,6 +84,7 @@ const handleObject = (obj) => {
         .join(", ")}}`;
 };
 import dayjs from "dayjs";
+dayjs.extend(customParseFormat);
 /**
  * Checks whether a value is a Dayjs object (duck-typed)
  */
@@ -199,21 +200,76 @@ export const casting = (opt) => {
  * Recursively traverse a value and convert SurrealDB datetime tagged values or ISO strings to Dayjs objects.
  * Accepts: strings matching ISO pattern or objects that contain datetime fields.
  */
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+/**
+ * Checks if a value is a valid date/time string (not a plain number)
+ */
+const isDateTimeString = (value) => {
+    if (typeof value !== 'string' || value.trim() === '') {
+        return false;
+    }
+    // Reject strings that are purely numeric (to avoid treating numbers as timestamps)
+    if (/^\d+$/.test(value.trim())) {
+        return false;
+    }
+    // Common date/time formats to check
+    const formats = [
+        'YYYY-MM-DD',
+        'YYYY-MM-DDTHH:mm:ss',
+        'YYYY-MM-DDTHH:mm:ss.SSS',
+        'YYYY-MM-DDTHH:mm:ss.SSSZ',
+        'YYYY-MM-DD HH:mm:ss',
+        'MM/DD/YYYY',
+        'DD/MM/YYYY',
+    ];
+    // Check with strict parsing
+    if (dayjs(value, formats, true).isValid()) {
+        return true;
+    }
+    // Check if it's a valid ISO string (with timezone)
+    const isoRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z?$/;
+    if (isoRegex.test(value)) {
+        return dayjs(value).isValid();
+    }
+    return false;
+};
 export const parseDatesToDayjs = (value) => {
-    if (value === null || value === undefined)
+    if (value === null || value === undefined) {
         return value;
-    if (isDayjs(value))
+    }
+    if (dayjs.isDayjs(value)) {
         return value;
-    if (dayjs(value).isValid()) {
+    }
+    // Only convert strings that look like dates
+    if (typeof value === 'string' && isDateTimeString(value)) {
         return dayjs(value);
     }
     if (Array.isArray(value)) {
         return value.map(v => parseDatesToDayjs(v));
     }
-    if (typeof value === 'object') {
+    if (typeof value === 'object' && !(value instanceof Date)) {
         const out = {};
         for (const [k, v] of Object.entries(value)) {
             out[k] = parseDatesToDayjs(v);
+        }
+        return out;
+    }
+    return value;
+};
+export const idConvertionToString = (value) => {
+    if (value === null || value === undefined) {
+        return value;
+    }
+    if (Array.isArray(value)) {
+        return value.map(v => idConvertionToString(v));
+    }
+    if (typeof value === "object" && 'tb' in value && 'id' in value) {
+        return value.tb + ':' + value.id;
+    }
+    else if (typeof value === "object") {
+        const out = {};
+        for (const [k, v] of Object.entries(value)) {
+            out[k] = idConvertionToString(v);
         }
         return out;
     }

@@ -1,4 +1,12 @@
 /**
+ * Helper to extract the object type from a union (filtering out primitives)
+ */
+type ExtractObjectType<T> = T extends string | number | boolean | symbol | bigint | null | undefined ? never : T extends object ? T : never;
+/**
+ * Helper to extract object type from array union (e.g., string[] | UserI[] => UserI)
+ */
+type ExtractArrayObjectType<T> = T extends (infer U)[] ? ExtractObjectType<U> : never;
+/**
  * Extracts all keys from T whose values are objects or arrays of objects.
  * Used to determine which fields can be used for `include` in the ORM.
  *
@@ -7,7 +15,7 @@
  *   type CarRelations = RelationKeys<Car>; // 'brand'
  */
 export type RelationKeys<T> = {
-    [K in keyof T]: T[K] extends (infer U)[] ? U extends object ? K : never : T[K] extends object ? K : never;
+    [K in keyof T]: NonNullable<T[K]> extends (infer U)[] ? ExtractArrayObjectType<NonNullable<T[K]>> extends never ? never : K : ExtractObjectType<NonNullable<T[K]>> extends never ? never : K;
 }[keyof T];
 /**
  * Extracts all keys from T whose values are NOT objects (i.e., scalar fields).
@@ -31,10 +39,9 @@ export type ScalarKeys<T> = {
  *   interface User { cars: Car[]; }
  *   RecursiveIncludeOption<User> allows { model: 'cars', fields: [...], include: [...] }
  */
-export type RecursiveIncludeOption<T> = RelationKeys<T> extends never ? never : {
-    [K in RelationKeys<T>]: {
-        model: K;
-        fields?: Array<keyof (T[K] extends (infer U)[] ? U : T[K])>;
-        include?: Array<RecursiveIncludeOption<T[K] extends (infer U)[] ? U : T[K]>>;
-    };
-}[RelationKeys<T>];
+export type RecursiveIncludeOption<T> = RelationKeys<T> extends never ? never : RelationKeys<T> extends infer K ? K extends RelationKeys<T> ? {
+    model: K;
+    fields?: Array<keyof (NonNullable<T[K & keyof T]> extends (infer U)[] ? ExtractArrayObjectType<NonNullable<T[K & keyof T]>> : ExtractObjectType<NonNullable<T[K & keyof T]>>)>;
+    include?: Array<RecursiveIncludeOption<NonNullable<T[K & keyof T]> extends (infer U)[] ? ExtractArrayObjectType<NonNullable<T[K & keyof T]>> : ExtractObjectType<NonNullable<T[K & keyof T]>>>>;
+} : never : never;
+export {};

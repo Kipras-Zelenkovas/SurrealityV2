@@ -15,4 +15,6 @@ export interface SelectOneOptionsI<T extends object = object> {
     raw?: boolean;
     surrealql?: string;
     include?: Array<RecursiveIncludeOption<T>>;
+    operator?: "=" | "!=" | "<" | "<=" | ">" | ">=" | "CONTAINS" | "CONTAINSNOT";
+    joinOperator?: "AND" | "OR";
 } 

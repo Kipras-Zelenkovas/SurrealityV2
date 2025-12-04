@@ -23,7 +23,7 @@ export function generateFindAllQuery<T extends object = object>(table: string, o
     // FETCH clause
     const fetchClause = generateFetchClause(options?.include);
     // WHERE clause
-    const whereClause = (!options?.surrealql) ? generateWhereClause(options?.where) : '';
+    const whereClause = (!options?.surrealql) ? generateWhereClause(options?.where, options?.operator, options?.joinOperator) : '';
     // ORDER BY clause
     const orderClause = (!options?.surrealql) ? generateOrderByClause(options?.order as string | string[]) : '';
     // LIMIT/OFFSET clause
@@ -36,8 +36,8 @@ export function generateFindAllQuery<T extends object = object>(table: string, o
     }
 
     // Build query
-    const query = `SELECT ${fields} FROM ${table} ` +
-        (customClause || [whereClause, orderClause, limitClause, fetchClause].filter(Boolean).join(' ')) +
+    const query = customClause ? `${customClause} ` : `SELECT ${fields} FROM ${table} ` +
+        [whereClause, orderClause, limitClause, fetchClause].filter(Boolean).join(' ') +
         ';';
     return query;
 }
