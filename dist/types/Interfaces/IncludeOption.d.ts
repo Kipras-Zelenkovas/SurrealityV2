@@ -44,4 +44,50 @@ export type RecursiveIncludeOption<T> = RelationKeys<T> extends never ? never : 
     fields?: Array<keyof (NonNullable<T[K & keyof T]> extends (infer U)[] ? ExtractArrayObjectType<NonNullable<T[K & keyof T]>> : ExtractObjectType<NonNullable<T[K & keyof T]>>)>;
     include?: Array<RecursiveIncludeOption<NonNullable<T[K & keyof T]> extends (infer U)[] ? ExtractArrayObjectType<NonNullable<T[K & keyof T]>> : ExtractObjectType<NonNullable<T[K & keyof T]>>>>;
 } : never : never;
+/**
+ * Helper to resolve the object type from a union like `string | UserI` or `string | UserI[]`
+ * Returns the non-primitive type (the interface/object type)
+ *
+ * For unions like `string | UserI`, extracts `UserI`
+ * For unions like `string | UserI[]`, extracts `UserI[]`
+ */
+type ResolveRelationType<T> = T extends (infer U)[] ? U extends string | number | boolean | symbol | bigint | null | undefined ? T : Exclude<U, string | number | boolean | symbol | bigint | null | undefined>[] : Exclude<T, string | number | boolean | symbol | bigint | null | undefined>;
+/**
+ * Helper to extract the primitive type from a union like `string | UserI`
+ * Returns just the primitive type (e.g., `string`)
+ *
+ * For unions like `string | UserI`, extracts `string`
+ * For unions like `string | UserI[]`, extracts `string`
+ */
+type ResolvePrimitiveType<T> = T extends (infer U)[] ? Extract<U, string | number | boolean | symbol | bigint | null | undefined> extends never ? T : Extract<U, string | number | boolean | symbol | bigint | null | undefined> : Extract<T, string | number | boolean | symbol | bigint | null | undefined>;
+/**
+ * Helper to extract the model names from an include array
+ */
+type ExtractIncludedModels<TInclude> = TInclude extends Array<infer I> ? I extends {
+    model: infer M;
+} ? M : never : never;
+/**
+ * Helper to get nested include for a specific model
+ */
+type GetNestedInclude<TInclude, TModel> = TInclude extends Array<infer I> ? I extends {
+    model: TModel;
+    include: infer NestedInclude;
+} ? NestedInclude : never : never;
+/**
+ * Recursively transforms an interface based on included relations.
+ * - If a relation IS included: resolves from `string | Interface` to `Interface`
+ * - If a relation is NOT included: resolves from `string | Interface` to `string`
+ * Also recursively transforms nested includes.
+ */
+type TransformWithInclude<T, TInclude, TAllRelations = RelationKeys<T>> = {
+    [K in keyof T]: K extends ExtractIncludedModels<TInclude> ? GetNestedInclude<TInclude, K> extends never ? ResolveRelationType<T[K]> : T[K] extends (infer U)[] ? ResolveRelationType<U>[] extends (infer V)[] ? TransformWithInclude<V, GetNestedInclude<TInclude, K>, RelationKeys<V>>[] : never : ResolveRelationType<T[K]> extends infer R ? TransformWithInclude<R, GetNestedInclude<TInclude, K>, RelationKeys<R>> : never : K extends TAllRelations ? ResolvePrimitiveType<T[K]> : T[K];
+};
+/**
+ * Determines the return type for findAll/findOne based on whether include is specified.
+ * - If include is provided: transforms relations based on what's included
+ * - If no include: resolves all relations to their primitive types (string)
+ */
+export type WithInclude<T, TOptions> = TOptions extends {
+    include: infer TInclude;
+} ? TransformWithInclude<T, TInclude> : TransformWithInclude<T, never>;
 export {};

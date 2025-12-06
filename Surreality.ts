@@ -15,6 +15,7 @@ import { generateUpdateQuery } from "./Queries_generators/update_generation.js"
 import { DeleteOptionsI } from "./Interfaces/DeleteOptionsI.js"
 import { generateDeleteQuery } from "./Queries_generators/delete_generation.js"
 import { idConvertionToString, parseDatesToDayjs } from "./Utils/casting.js"
+import { WithInclude } from "./Interfaces/IncludeOption.js"
 
 /**
  * Surreality ORM class for SurrealDB.
@@ -324,9 +325,9 @@ export class Surreality<TTableSchema extends object = object> {
      *   - The 'where' option is type-safe and flexible.
      *   - All options are autocompleted and type-checked based on your interface structure.
      */
-    public async findAll(options: SelectOptionsI<TTableSchema> & { raw: true }): Promise<unknown>
-    public async findAll(options?: SelectOptionsI<TTableSchema>): Promise<TTableSchema[] | null | ErrorResponse>
-    public async findAll(options?: SelectOptionsI<TTableSchema>): Promise<TTableSchema[] | null | ErrorResponse | unknown> {
+    public async findAll<TOptions extends SelectOptionsI<TTableSchema>>(options: TOptions & { raw: true }): Promise<unknown>
+    public async findAll<TOptions extends SelectOptionsI<TTableSchema>>(options?: TOptions): Promise<WithInclude<TTableSchema, TOptions>[] | null | ErrorResponse>
+    public async findAll<TOptions extends SelectOptionsI<TTableSchema>>(options?: TOptions): Promise<WithInclude<TTableSchema, TOptions>[] | null | ErrorResponse | unknown> {
         try {
             if (!this.surreal) throw new Error("Not connected to SurrealDB")
             if (!this.table) throw new Error("Table is not written")
@@ -338,8 +339,8 @@ export class Surreality<TTableSchema extends object = object> {
             // if (options?.raw) return result
             // SurrealDB returns an array of results
             if (Array.isArray(result) && Array.isArray(result[0])) {
-                const rows = (result[0] as TTableSchema[]) ?? null
-                return rows ? (rows.map(r => parseDatesToDayjs(idConvertionToString(r))) as TTableSchema[]) : null
+                const rows = (result[0] as any[]) ?? null
+                return rows ? (rows.map(r => parseDatesToDayjs(idConvertionToString(r))) as WithInclude<TTableSchema, TOptions>[]) : null
             }
             // If result does not match expected shape, return null in typed mode
             return null
@@ -400,9 +401,9 @@ export class Surreality<TTableSchema extends object = object> {
      *   - All options are autocompleted and type-checked based on your interface structure.
      *   - Always returns a single record (or null), never an array.
      */
-    public async findOne(options: SelectOneOptionsI<TTableSchema> & { raw: true }): Promise<unknown>
-    public async findOne(options?: SelectOneOptionsI<TTableSchema>): Promise<TTableSchema | null | ErrorResponse>
-    public async findOne(options?: SelectOneOptionsI<TTableSchema>): Promise<TTableSchema | null | ErrorResponse | unknown> {
+    public async findOne<TOptions extends SelectOneOptionsI<TTableSchema>>(options: TOptions & { raw: true }): Promise<unknown>
+    public async findOne<TOptions extends SelectOneOptionsI<TTableSchema>>(options?: TOptions): Promise<WithInclude<TTableSchema, TOptions> | null | ErrorResponse>
+    public async findOne<TOptions extends SelectOneOptionsI<TTableSchema>>(options?: TOptions): Promise<WithInclude<TTableSchema, TOptions> | null | ErrorResponse | unknown> {
         try {
             if (!this.surreal) throw new Error("Not connected to SurrealDB")
             if (!this.table) throw new Error("Table is not written")
@@ -414,8 +415,8 @@ export class Surreality<TTableSchema extends object = object> {
             if (options?.raw) return result
             // SurrealDB returns an object
             if (Array.isArray(result) && Array.isArray(result[0])) {
-                const row = (result[0][0] as TTableSchema) ?? null
-                return row ? (parseDatesToDayjs(idConvertionToString(row)) as TTableSchema) : null
+                const row = (result[0][0] as any) ?? null
+                return row ? (parseDatesToDayjs(idConvertionToString(row)) as WithInclude<TTableSchema, TOptions>) : null
             }
             return null
         } catch (error: unknown) {
