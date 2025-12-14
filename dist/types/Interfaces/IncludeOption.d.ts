@@ -57,9 +57,9 @@ type ResolveRelationType<T> = T extends (infer U)[] ? U extends string | number 
  * Returns just the primitive type (e.g., `string`)
  *
  * For unions like `string | UserI`, extracts `string`
- * For unions like `string | UserI[]`, extracts `string`
+ * For unions like `string[] | UserI[]`, extracts `string[]`
  */
-type ResolvePrimitiveType<T> = T extends (infer U)[] ? Extract<U, string | number | boolean | symbol | bigint | null | undefined> extends never ? T : Extract<U, string | number | boolean | symbol | bigint | null | undefined> : Extract<T, string | number | boolean | symbol | bigint | null | undefined>;
+type ResolvePrimitiveType<T> = T extends (infer U)[] ? Extract<U, string | number | boolean | symbol | bigint | null | undefined> extends never ? T : Extract<U, string | number | boolean | symbol | bigint | null | undefined>[] : Extract<T, string | number | boolean | symbol | bigint | null | undefined>;
 /**
  * Helper to extract the model names from an include array
  */

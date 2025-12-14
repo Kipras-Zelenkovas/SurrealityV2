@@ -96,13 +96,13 @@ type ResolveRelationType<T> =
  * Returns just the primitive type (e.g., `string`)
  * 
  * For unions like `string | UserI`, extracts `string`
- * For unions like `string | UserI[]`, extracts `string`
+ * For unions like `string[] | UserI[]`, extracts `string[]`
  */
 type ResolvePrimitiveType<T> = 
   T extends (infer U)[]
     ? Extract<U, string | number | boolean | symbol | bigint | null | undefined> extends never
       ? T // If no primitives in array, keep as is
-      : Extract<U, string | number | boolean | symbol | bigint | null | undefined> // Extract primitive from array union
+      : Extract<U, string | number | boolean | symbol | bigint | null | undefined>[] // Extract primitive from array union and wrap back in array
     : Extract<T, string | number | boolean | symbol | bigint | null | undefined>; // Extract primitive from union
 
 /**

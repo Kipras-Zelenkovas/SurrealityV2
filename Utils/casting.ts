@@ -300,7 +300,7 @@ export const idConvertionToString = (value: any): any => {
 
     if (typeof value === "object" && 'tb' in value && 'id' in value) {
         return value.tb + ':' + value.id
-    } else if (typeof value === "object") {
+    } else if (typeof value === "object" && !(value instanceof Date)) {
         const out: any = {};
         for (const [k, v] of Object.entries(value)) {
             out[k] = idConvertionToString(v);
